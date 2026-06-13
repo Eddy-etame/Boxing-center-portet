@@ -1,0 +1,123 @@
+/* ============================================================
+   THEME ENGINE — three facets of the REAL Boxing Center identity.
+   <html data-theme="arena|heritage|raw">
+   - arena    : black cinematic ring, bronze + electric blue + red sparks
+   - heritage : deep navy + bronze varsity crest, refined & classic
+   - raw      : the real gym — concrete, blue+red mats, hard edges
+   Palette pulled from the official crest (navy/bronze), the campaign
+   flyers (black/blue/red) and the room itself.
+   ============================================================ */
+
+:root {
+  --maxw: 1320px;
+  --gutter: clamp(20px, 5vw, 64px);
+  --nav-h: 80px;
+  --hero-bg: #08090c; /* the dark stage, all themes */
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 0.25s;
+  --t-med: 0.5s;
+  --t-slow: 0.9s;
+
+  /* dual type system: elegant serif (heritage) + condensed (campaign) */
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-cond: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* brand constants */
+  --c-bronze: #b0793f;
+  --c-gold: #d7a24a;
+  --c-navy: #16223f;
+  --c-blue: #1e6fff;
+  --c-red: #e2231a;
+  --c-paper: #f3efe7;
+}
+
+/* ---------- ARÈNE — signature cinematic arena ---------- */
+[data-theme="arena"] {
+  color-scheme: dark;
+  --bg: #08090c;
+  --bg-1: #0d0f15;
+  --bg-2: #14171f;
+  --bg-glass: rgba(10, 12, 17, 0.6);
+  --fg: #f3efe7;
+  --fg-soft: #cdc8bd;
+  --muted: #877f72;
+  --line: rgba(243, 239, 231, 0.1);
+  --line-strong: rgba(243, 239, 231, 0.22);
+
+  --accent: #b0793f;       /* bronze leads */
+  --accent-ink: #08090c;
+  --accent-2: #1e6fff;     /* electric blue light */
+  --energy: #e2231a;       /* combat red */
+  --glow: rgba(176, 121, 63, 0.5);
+
+  --radius: 14px;
+  --radius-lg: 22px;
+  --display-tracking: -0.01em;
+  --display-transform: none;
+  --section-pad: clamp(90px, 12vw, 180px);
+}
+
+/* ---------- HÉRITAGE — navy + bronze varsity world ---------- */
+[data-theme="heritage"] {
+  color-scheme: dark;
+  --bg: #0c1426;
+  --bg-1: #101a31;
+  --bg-2: #16223f;
+  --bg-glass: rgba(12, 20, 38, 0.62);
+  --fg: #f3efe7;
+  --fg-soft: #c8cedd;
+  --muted: #7f879c;
+  --line: rgba(243, 239, 231, 0.12);
+  --line-strong: rgba(215, 162, 74, 0.4);
+
+  --accent: #d7a24a;       /* gold/bronze */
+  --accent-ink: #0c1426;
+  --accent-2: #b0793f;
+  --energy: #e2231a;
+  --glow: rgba(215, 162, 74, 0.45);
+
+  --radius: 10px;
+  --radius-lg: 18px;
+  --display-tracking: -0.005em;
+  --display-transform: none;
+  --section-pad: clamp(90px, 12vw, 175px);
+}
+
+/* ---------- BRUT — the real gym, concrete & gritty ---------- */
+[data-theme="raw"] {
+  color-scheme: dark;
+  --bg: #0a0a0b;
+  --bg-1: #101011;
+  --bg-2: #17171a;
+  --bg-glass: rgba(10, 10, 11, 0.8);
+  --fg: #ffffff;
+  --fg-soft: #d6d6d6;
+  --muted: #8a8a8a;
+  --line: rgba(255, 255, 255, 0.14);
+  --line-strong: rgba(255, 255, 255, 0.32);
+
+  --accent: #e2231a;       /* combat red leads */
+  --accent-ink: #ffffff;
+  --accent-2: #1e6fff;     /* mat blue */
+  --energy: #e2231a;
+  --glow: rgba(226, 35, 26, 0.5);
+
+  --radius: 0px;
+  --radius-lg: 0px;
+  --display-tracking: 0.005em;
+  --display-transform: uppercase;
+  --font-display: "Oswald", "Arial Narrow", sans-serif; /* brutal condensed */
+  --section-pad: clamp(90px, 12vw, 170px);
+}
+
+html.theme-anim,
+html.theme-anim body,
+html.theme-anim *:not(canvas) {
+  transition: background-color var(--t-med) var(--ease-io),
+    color var(--t-med) var(--ease-io), border-color var(--t-med) var(--ease-io),
+    fill var(--t-med) var(--ease-io);
+}
