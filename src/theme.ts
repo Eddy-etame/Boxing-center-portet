@@ -6,7 +6,7 @@ const valid = THEMES.map((t) => t.id) as readonly string[];
 export function getTheme(): ThemeId {
   const saved = localStorage.getItem(KEY);
   if (saved && valid.includes(saved)) return saved as ThemeId;
-  return "arena";
+  return "raw"; // red-brutal is the default mood
 }
 
 export function applyTheme(id: ThemeId, animate = true) {

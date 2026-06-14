@@ -1,16 +1,21 @@
 /**
- * Immersion layer: custom cursor, magnetic buttons, page-transition curtain,
- * and interaction sound. All degrade safely (touch / reduced-motion / no-JS).
+ * Immersion layer: custom cursor, magnetic buttons, interaction sound.
+ * Split into once (persistent across soft-nav) and per-page (re-bound on swap).
+ * Page transitions are owned by the router. Degrades on touch / reduced-motion.
  */
-import { tick, thud, bell, soundOn } from "./audio";
+import { tick, bell, soundOn } from "./audio";
 
 const fine = window.matchMedia("(pointer: fine)").matches;
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export function initFx() {
-  initCurtain();
+/** Persistent: the custom cursor (delegated, survives page swaps). */
+export function initFxOnce() {
+  if (fine && !reduced) initCursor();
+}
+
+/** Per-page: rebind to the current DOM after a soft swap. */
+export function initFxPage() {
   if (fine && !reduced) {
-    initCursor();
     initMagnetic();
     initGalleryWarp();
   }
@@ -32,49 +37,23 @@ function initGalleryWarp() {
   });
 }
 
-/* ---------- page-transition curtain ----------
-   Reveal is pure CSS (runs on load, never traps the page).
-   Exit is JS-enhanced on internal link clicks. */
-function initCurtain() {
-  const curtain = document.getElementById("curtain");
-  if (!curtain || reduced) return;
-  document.addEventListener(
-    "click",
-    (e) => {
-      const a = (e.target as HTMLElement).closest("a");
-      if (!a) return;
-      const href = a.getAttribute("href") || "";
-      const target = a.getAttribute("target");
-      if (
-        !href ||
-        href.startsWith("#") ||
-        href.startsWith("http") ||
-        href.startsWith("mailto:") ||
-        href.startsWith("tel:") ||
-        target === "_blank" ||
-        e.metaKey ||
-        e.ctrlKey ||
-        e.shiftKey ||
-        e.button !== 0
-      )
-        return;
-      e.preventDefault();
-      if (soundOn()) thud();
-      curtain.classList.add("curtain--in");
-      window.setTimeout(() => (window.location.href = href), 560);
-      // hard fallback so navigation can never be swallowed
-      window.setTimeout(() => (window.location.href = href), 1200);
-    },
-    true
-  );
-}
+/* ---------- custom cursor with context labels ---------- */
+const CURSOR_LABELS: [string, string][] = [
+  [".btn--primary", "Réserver"],
+  [".reel__frame", "Voir"],
+  [".clip", "Jouer"],
+  [".shot", "Voir"],
+  [".tarif", "Choisir"],
+  [".coach", "Découvrir"],
+];
 
-/* ---------- custom cursor ---------- */
 function initCursor() {
   const dot = document.createElement("div");
   dot.className = "cursor";
   dot.setAttribute("aria-hidden", "true");
+  dot.innerHTML = '<span class="cursor__label"></span>';
   document.body.appendChild(dot);
+  const label = dot.querySelector<HTMLElement>(".cursor__label")!;
 
   let x = innerWidth / 2,
     y = innerHeight / 2,
@@ -93,12 +72,21 @@ function initCursor() {
   };
   loop();
 
-  const interactive = "a, button, .disc, .tarif, .shot, .clip, input, .coach";
+  const interactive = "a, button, .disc, .tarif, .shot, .clip, input, .coach, .reel__frame";
   document.addEventListener("pointerover", (e) => {
-    if ((e.target as HTMLElement).closest(interactive)) dot.classList.add("cursor--grow");
+    const t = (e.target as HTMLElement).closest(interactive);
+    if (!t) return;
+    dot.classList.add("cursor--grow");
+    let txt = "";
+    for (const [sel, l] of CURSOR_LABELS) if (t.matches(sel) || t.closest(sel)) { txt = l; break; }
+    label.textContent = txt;
+    dot.classList.toggle("cursor--label", !!txt);
   });
   document.addEventListener("pointerout", (e) => {
-    if ((e.target as HTMLElement).closest(interactive)) dot.classList.remove("cursor--grow");
+    if ((e.target as HTMLElement).closest(interactive)) {
+      dot.classList.remove("cursor--grow", "cursor--label");
+      label.textContent = "";
+    }
   });
 }
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" data-theme="arena">
+<html lang="fr" data-theme="raw">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,7 +22,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <!-- GEO / local SEO structured data -->
   <script type="application/ld+json">
@@ -56,41 +56,38 @@
   </script>
   <script>
     (function () { try { var t = localStorage.getItem('bcp-theme'); var v = ['arena','heritage','raw'];
-      document.documentElement.setAttribute('data-theme', v.indexOf(t) >= 0 ? t : 'arena'); } catch (e) {} })();
+      document.documentElement.setAttribute('data-theme', v.indexOf(t) >= 0 ? t : 'raw'); } catch (e) {} })();
   </script>
-  <script type="module" crossorigin src="/assets/main-BrJ7I1O1.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/main-Dy5jQc-b.css">
+  <script type="module" crossorigin src="/assets/main-BetrF2YN.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-CgwytEWD.css">
 </head>
 
 <body data-page="home">
   <div class="curtain" id="curtain" aria-hidden="true"></div>
   <div id="site-nav"></div>
+  <main id="page">
 
   <!-- ===================== WALK-OUT (hero) ===================== -->
   <header class="hero" data-round="0" data-round-name="Le walk-out">
     <div class="hero__canvas" id="hero-canvas" aria-hidden="true"></div>
-    <div class="hero__inner wrap">
-      <div class="hero__kicker">
-        <span class="eyebrow">Portet-sur-Garonne · 31120</span>
-        <span class="eyebrow" style="--accent: var(--energy)">La plus grande salle Boxing Center</span>
-      </div>
-      <h1 class="display">
-        <span class="reveal-line"><span>Entre dans</span></span>
-        <span class="reveal-line"><span>l'<span class="tint">arène.</span></span></span>
-      </h1>
-      <div class="hero__bottom">
-        <p class="lead" data-reveal>800 m² pour transpirer, encaisser, te relever plus fort. Boxe, Muay Thaï, MMA, cross training — du tout premier jab au combat de gala. Débutant ou compétiteur, ta place t'attend.</p>
-        <div class="hero__cta" data-reveal>
-          <a class="btn btn--primary" href="/contact/">Ma 1<sup>re</sup> séance · 10€</a>
-          <a class="btn btn--ghost" href="/activites/">Découvrir les disciplines</a>
-        </div>
-      </div>
-      <div class="hero__scroll">Le combat commence ici <span class="line"></span></div>
+    <h1 class="sr-only">Boxing Center Portet — salle de boxe & combat à Portet-sur-Garonne</h1>
+    <div class="hero__kicker wrap">
+      <span class="eyebrow">Portet-sur-Garonne · 31120</span>
+      <span class="eyebrow" style="--accent: var(--energy)">Nouvelle salle phare</span>
     </div>
+    <div class="hero__inner wrap">
+      <p class="hero__hook" data-reveal>Ici, on ne fait pas du sport.<br>On forge des <span class="tint">combattants.</span></p>
+      <div class="hero__cta" data-reveal>
+        <a class="btn btn--primary" href="/contact/">Ma 1<sup>re</sup> séance · 10€</a>
+        <a class="btn btn--ghost" href="/activites/">Découvrir les disciplines</a>
+      </div>
+    </div>
+    <div class="hero__scroll">Le combat commence ici <span class="line"></span></div>
   </header>
 
   <!-- ===================== LA TOISE (stats) ===================== -->
   <section class="stats-band">
+    <div class="vid-bg"><video src="/media/clip-4.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
     <div class="wrap">
       <span class="eyebrow" style="display:block;padding-block:1.4rem 0">La toise</span>
       <div class="stats" data-reveal-group>
@@ -136,13 +133,13 @@
     </div>
   </section>
 
-  <!-- ===================== ROUND 2 — TON COMBAT ===================== -->
-  <div class="round-card" data-round="2" data-round-name="Ton combat">
-    <div class="round-card__inner wrap">
-      <span class="round-card__n">Round 02</span>
-      <span class="round-card__title">Ton combat</span>
+  <!-- ===================== ROUND 2 — TON COMBAT (portal) ===================== -->
+  <section class="portal" data-round="2" data-round-name="Ton combat" data-img="/img/gym-22.jpg" aria-hidden="true">
+    <div class="portal__sticky">
+      <div class="portal__canvas"></div>
+      <div class="portal__line wrap"><span class="portal__n">Round 02</span><span class="display">Ton combat</span></div>
     </div>
-  </div>
+  </section>
   <section class="reel" id="disciplines">
     <div class="reel__pin">
       <div class="reel__head wrap">
@@ -163,18 +160,36 @@
       <span class="round-card__title">Le terrain</span>
     </div>
   </div>
-  <section class="scrub" id="scrub" aria-label="Sur le ring">
-    <div class="scrub__sticky">
-      <video class="scrub__video" src="/media/clip-hero.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
-      <div class="scrub__grade" aria-hidden="true"></div>
-      <div class="scrub__overlay wrap">
-        <span class="eyebrow">Sur le ring</span>
-        <h2 class="display" style="max-width:18ch">Chaque round te <span class="tint">forge.</span></h2>
-        <div class="scrub__bar"><i></i></div>
+  <section class="ring" id="ring" aria-label="Le ring">
+    <div class="ring__sticky">
+      <div class="ring__canvas" id="ring-canvas" aria-hidden="true"></div>
+      <div class="ring__overlay">
+        <div class="ring__txt wrap" data-r="0">
+          <span class="eyebrow">Sur le ring</span>
+          <h2 class="display" style="max-width:16ch">Monte sur<br>le <span class="tint">ring.</span></h2>
+          <p class="lead" style="max-width:38ch;color:#cdd3df">Franchis les cordes — voilà ce qui t'attend.</p>
+        </div>
+        <div class="ring__txt wrap" data-r="1" style="opacity:0">
+          <span class="eyebrow">01 · Le terrain</span>
+          <h2 class="display" style="max-width:15ch">800 m².<br>Deux espaces <span class="tint">XXL.</span></h2>
+          <p class="lead" style="max-width:42ch;color:#cdd3df">Un ring olympique, une cage MMA, 24 sacs lourds, 400 m² de cross training. De la place pour tout donner.</p>
+        </div>
+        <div class="ring__txt wrap" data-r="2" style="opacity:0">
+          <span class="eyebrow">02 · L'encadrement</span>
+          <h2 class="display" style="max-width:15ch">Formé par<br>des <span class="tint">pros.</span></h2>
+          <p class="lead" style="max-width:42ch;color:#cdd3df">Boxeurs professionnels et coachs diplômés FFBoxe, FFKMDA, FMMAF. Tu progresses vite, et bien.</p>
+        </div>
+        <div class="ring__txt wrap" data-r="3" style="opacity:0">
+          <span class="eyebrow">03 · Ta place</span>
+          <h2 class="display" style="max-width:15ch">10€. <span class="tint">Sans engagement.</span></h2>
+          <p class="lead" style="max-width:42ch;color:#cdd3df">Une séance d'essai, toutes disciplines. La seule chose que tu risques, c'est d'y prendre goût.</p>
+          <a class="btn btn--primary" href="/contact/" style="pointer-events:auto;align-self:flex-start;margin-top:.5rem">Réserver ma 1<sup>re</sup> séance</a>
+        </div>
       </div>
     </div>
   </section>
-  <section class="section band">
+  <section class="section band has-bg">
+    <div class="vid-bg"><video src="/media/clip-1.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
     <div class="wrap split">
       <div data-reveal>
         <span class="eyebrow">L'équipement</span>
@@ -192,12 +207,12 @@
   </section>
 
   <!-- ===================== ROUND 4 — LES CHAMPIONS ===================== -->
-  <div class="round-card" data-round="4" data-round-name="Les champions">
-    <div class="round-card__inner wrap">
-      <span class="round-card__n">Round 04</span>
-      <span class="round-card__title">Les champions</span>
+  <section class="portal" data-round="4" data-round-name="Les champions" data-img="/img/gym-14.jpg" aria-hidden="true">
+    <div class="portal__sticky">
+      <div class="portal__canvas"></div>
+      <div class="portal__line wrap"><span class="portal__n">Round 04</span><span class="display">Les champions</span></div>
     </div>
-  </div>
+  </section>
   <section class="showcase">
     <div class="showcase__frame">
       <img class="showcase__img" src="/img/gym-14.jpg" alt="Soirée de gala Boxing Center — un combattant ceint du titre sur le ring" loading="lazy" />
@@ -207,7 +222,8 @@
       <h2 class="display">Le ring rend<br>ce que tu lui <span class="tint">donnes.</span></h2>
     </div>
   </section>
-  <section class="section">
+  <section class="section has-bg">
+    <div class="vid-bg"><video src="/media/clip-3.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
     <div class="wrap">
       <div class="sec-head">
         <div>
@@ -254,12 +270,12 @@
   </section>
 
   <!-- ===================== ROUND 6 — L'OFFRE ===================== -->
-  <div class="round-card" data-round="6" data-round-name="L'offre">
-    <div class="round-card__inner wrap">
-      <span class="round-card__n">Round 06</span>
-      <span class="round-card__title">L'offre</span>
+  <section class="portal" data-round="6" data-round-name="L'offre" data-img="/img/gym-21.jpg" aria-hidden="true">
+    <div class="portal__sticky">
+      <div class="portal__canvas"></div>
+      <div class="portal__line wrap"><span class="portal__n">Round 06</span><span class="display">L'offre</span></div>
     </div>
-  </div>
+  </section>
   <section class="section">
     <div class="wrap">
       <div class="sec-head">
@@ -286,6 +302,7 @@
     </div>
   </section>
 
-  <div id="site-footer"></div>
+  </main>
+  <div id="site-footer"></div>
 </body>
 </html>

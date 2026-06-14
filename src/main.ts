@@ -1,10 +1,11 @@
 import "./styles/main.css";
 import { mountLayout } from "./layout";
 import { initThemeSwitch } from "./theme";
-import { initScroll } from "./scroll";
-import { initFx } from "./fx";
+import { initScroll, initPageScroll } from "./scroll";
+import { initFxOnce, initFxPage } from "./fx";
 import { renderPage } from "./pages";
 import { initEnterGate } from "./enter";
+import { initRouter } from "./router";
 import { DISCIPLINES, TARIFS, GALLERY, CLIPS, AUDIENCES, CHAMPIONS, VALUES } from "./data";
 
 function renderHomeGrids() {
@@ -110,30 +111,45 @@ function renderMedia() {
   }
 }
 
-function boot() {
-  initEnterGate();
-  mountLayout();
-  initThemeSwitch();
+const hasWebGL = "WebGLRenderingContext" in window;
 
+/** Everything bound to the current page's DOM. Re-run after a soft swap. */
+function bootPage() {
   const page = document.body.dataset.page;
   if (page === "home") renderHomeGrids();
   else renderPage(page);
 
-  initScroll();
-  initFx();
+  initPageScroll();
+  initFxPage();
 
-  if (page === "home") {
+  if (page === "home" && hasWebGL) {
     const host = document.getElementById("hero-canvas");
-    if (host && "WebGLRenderingContext" in window) {
-      import("./three/hero")
-        .then((m) => m.initHero(host))
-        .catch(() => host.classList.add("hero__canvas--fallback"));
-    }
+    if (host) import("./three/hero").then((m) => m.initHero(host)).catch(() => {});
     const showcase = document.querySelector<HTMLElement>(".showcase__frame");
-    if (showcase && "WebGLRenderingContext" in window) {
-      import("./three/showcase").then((m) => m.initShowcaseGL(showcase)).catch(() => {});
+    if (showcase) import("./three/showcase").then((m) => m.initShowcaseGL(showcase)).catch(() => {});
+    const ringSec = document.querySelector<HTMLElement>(".ring");
+    const ringHost = document.getElementById("ring-canvas");
+    if (ringSec && ringHost) import("./three/ring").then((m) => m.initRing(ringSec, ringHost)).catch(() => {});
+    if (document.querySelector(".portal")) {
+      import("./three/portal").then((m) => m.initPortals()).catch(() => {});
     }
   }
+}
+
+/** Persistent shell — created once; survives soft navigation. */
+function bootOnce() {
+  initEnterGate();
+  mountLayout();
+  initThemeSwitch();
+  initScroll();
+  initFxOnce();
+  if (hasWebGL) import("./three/world").then((m) => m.initWorld()).catch(() => {});
+}
+
+function boot() {
+  bootOnce();
+  bootPage();
+  initRouter(bootPage);
 }
 
 if (document.readyState === "loading") {

@@ -48,34 +48,30 @@ export async function initHero(container: HTMLElement) {
   geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   const crestMat = new THREE.PointsMaterial({
     color: C(cols.accent),
-    size: 0.032,
+    size: 0.05,
     transparent: true,
-    opacity: 0.95,
+    opacity: 1,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   });
   const crest = new THREE.Points(geo, crestMat);
   scene.add(crest);
 
-  // ---------- embers ----------
-  const E = 700;
+  // ---------- embers (spread across the full-bleed hero canvas) ----------
+  const E = 600;
   const ePos = new Float32Array(E * 3);
   const eVel = new Float32Array(E);
   for (let i = 0; i < E; i++) {
-    ePos[i * 3] = (Math.random() - 0.5) * 16;
-    ePos[i * 3 + 1] = (Math.random() - 0.5) * 12;
+    ePos[i * 3] = (Math.random() - 0.5) * 20;
+    ePos[i * 3 + 1] = (Math.random() - 0.5) * 13;
     ePos[i * 3 + 2] = (Math.random() - 0.5) * 6 - 2;
     eVel[i] = 0.004 + Math.random() * 0.012;
   }
   const eGeo = new THREE.BufferGeometry();
   eGeo.setAttribute("position", new THREE.BufferAttribute(ePos, 3));
   const eMat = new THREE.PointsMaterial({
-    color: C(cols.energy),
-    size: 0.05,
-    transparent: true,
-    opacity: 0.55,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
+    color: C(cols.energy), size: 0.05, transparent: true, opacity: 0.55,
+    blending: THREE.AdditiveBlending, depthWrite: false,
   });
   const embers = new THREE.Points(eGeo, eMat);
   scene.add(embers);
@@ -88,7 +84,7 @@ export async function initHero(container: HTMLElement) {
     const { UnrealBloomPass } = await import("three/addons/postprocessing/UnrealBloomPass.js");
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.9, 0.7, 0.1));
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 1.25, 0.75, 0.08));
   } catch { composer = null; }
 
   function resize() {
@@ -101,9 +97,9 @@ export async function initHero(container: HTMLElement) {
     // fit the crest to the viewport width (so it never overflows on mobile)
     const visH = 2 * 9 * Math.tan((camera.fov * Math.PI) / 360);
     const visW = visH * camera.aspect;
-    crest.scale.setScalar(Math.min(1, (visW * 0.9) / 7.0));
-    // lift it into the upper area so the headline band stays clear
-    crest.position.y = (h > w ? 0.3 : 0.22) * visH;
+    // full-bleed canvas: wordmark upper, slightly smaller + lower so the top clears the nav
+    crest.scale.setScalar(Math.min(0.92, (visW * 0.48) / 7.0));
+    crest.position.y = 0.17 * visH;
   }
   resize();
   window.addEventListener("resize", resize);
@@ -129,6 +125,7 @@ export async function initHero(container: HTMLElement) {
   const posAttr = geo.getAttribute("position") as THREE.BufferAttribute;
 
   function frame() {
+    if (!container.isConnected) { renderer.dispose(); return; } // stop after a soft-nav swap
     requestAnimationFrame(frame);
     if (!visible || document.hidden) return;
     const t = clock.getElapsedTime();
@@ -155,12 +152,11 @@ export async function initHero(container: HTMLElement) {
     }
     if (dirty) posAttr.needsUpdate = true;
 
-    // embers rise + recycle
     if (!reduced) {
       const e = (eGeo.getAttribute("position") as THREE.BufferAttribute).array as Float32Array;
       for (let i = 0; i < E; i++) {
         e[i * 3 + 1] += eVel[i];
-        if (e[i * 3 + 1] > 6) e[i * 3 + 1] = -6;
+        if (e[i * 3 + 1] > 6.5) e[i * 3 + 1] = -6.5;
       }
       (eGeo.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
       crest.rotation.y = Math.sin(t * 0.18) * 0.08;
@@ -185,13 +181,28 @@ async function sampleLogo(url: string, want: number, worldW: number): Promise<Fl
     i.onerror = rej;
     i.src = url;
   });
-  const W = 380;
-  const H = Math.round((img.height / img.width) * W);
+  try {
+    if ((document as any).fonts?.ready) await (document as any).fonts.ready;
+  } catch {}
+  // compose the full wordmark: the "BOXING CENTER" logo + "PORTET" beneath it
+  const W = 440;
+  const logoH = Math.round((img.height / img.width) * W);
+  const gap = Math.round(W * 0.045);
+  const portetH = Math.round(W * 0.16);
+  const H = logoH + gap + portetH;
   const cv = document.createElement("canvas");
   cv.width = W;
   cv.height = H;
   const ctx = cv.getContext("2d")!;
-  ctx.drawImage(img, 0, 0, W, H);
+  ctx.drawImage(img, 0, 0, W, logoH);
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  try {
+    (ctx as any).letterSpacing = Math.round(portetH * 0.3) + "px";
+  } catch {}
+  ctx.font = `700 ${portetH}px "Oswald", "Arial Narrow", sans-serif`;
+  ctx.fillText("PORTET", W / 2 + Math.round(portetH * 0.15), logoH + gap);
   const data = ctx.getImageData(0, 0, W, H).data;
 
   const pts: number[] = [];

@@ -20,11 +20,12 @@
   --t-med: 0.5s;
   --t-slow: 0.9s;
 
-  /* dual type system: elegant serif (heritage) + condensed (campaign) */
+  /* one condensed display voice — brutal, boxing, not "soft premium" */
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-display: "Oswald", "Arial Narrow", system-ui, sans-serif;
   --font-cond: "Oswald", "Arial Narrow", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --display-transform: uppercase;
 
   /* brand constants */
   --c-bronze: #b0793f;
@@ -57,7 +58,7 @@
   --radius: 14px;
   --radius-lg: 22px;
   --display-tracking: -0.01em;
-  --display-transform: none;
+  --display-transform: uppercase;
   --section-pad: clamp(90px, 12vw, 180px);
 }
 
@@ -83,7 +84,7 @@
   --radius: 10px;
   --radius-lg: 18px;
   --display-tracking: -0.005em;
-  --display-transform: none;
+  --display-transform: uppercase;
   --section-pad: clamp(90px, 12vw, 175px);
 }
 

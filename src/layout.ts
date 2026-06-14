@@ -9,10 +9,6 @@ function navMarkup(path: string) {
     return `<a href="${n.href}"${current}>${n.label}</a>`;
   }).join("");
 
-  const themes = THEMES.map(
-    (t) => `<button data-th="${t.id}" title="Thème ${t.label} — ${t.hint}" aria-label="Thème ${t.label}"><span></span></button>`
-  ).join("");
-
   return `
   <nav class="nav" id="nav" translate="no">
     <div class="nav__inner">
@@ -23,7 +19,6 @@ function navMarkup(path: string) {
       </a>
       <div class="nav__links">${links}</div>
       <div class="nav__right">
-        <div class="theme-switch" role="group" aria-label="Choisir le thème">${themes}</div>
         <button class="icon-btn sound-toggle" id="sound" aria-label="Activer le son" title="Son">
           <span class="bars"><i></i><i></i><i></i></span>
         </button>

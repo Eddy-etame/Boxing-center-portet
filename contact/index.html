@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" data-theme="arena">
+<html lang="fr" data-theme="raw">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,7 +12,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -25,11 +25,12 @@
     "openingHoursSpecification": [{ "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "10:00", "closes": "21:30" }]
   }
   </script>
-  <script>(function(){try{var t=localStorage.getItem('bcp-theme');var v=['arena','heritage','raw'];document.documentElement.setAttribute('data-theme',v.indexOf(t)>=0?t:'arena');}catch(e){}})();</script>
+  <script>(function(){try{var t=localStorage.getItem('bcp-theme');var v=['arena','heritage','raw'];document.documentElement.setAttribute('data-theme',v.indexOf(t)>=0?t:'raw');}catch(e){}})();</script>
 </head>
 <body data-page="contact">
   <div class="curtain" id="curtain" aria-hidden="true"></div>
   <div id="site-nav"></div>
+  <main id="page">
   <section class="page-head">
     <div class="wrap">
       <span class="eyebrow">Contact</span>
@@ -51,6 +52,7 @@
       </div>
     </div>
   </section>
+  </main>
   <div id="site-footer"></div>
   <script type="module" src="/src/main.ts"></script>
 </body>

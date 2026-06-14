@@ -7,34 +7,66 @@ gsap.registerPlugin(ScrollTrigger);
 
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export function initScroll() {
-  let lenis: Lenis | null = null;
+/* ---- persistent scroll engine (created once; survives soft navigation) ---- */
+let lenis: Lenis | null = null;
+let started = false;
+const pageScrollCbs: ((y: number) => void)[] = []; // per-page scroll handlers, cleared on swap
+const pageObservers: IntersectionObserver[] = []; // per-page IOs, disconnected on swap
+const pageTweens: gsap.core.Tween[] = []; // per-page infinite tweens, killed on swap
 
+const onScroll = (cb: (y: number) => void) => pageScrollCbs.push(cb);
+const track = (io: IntersectionObserver) => (pageObservers.push(io), io);
+const scrollY = () => (lenis ? (lenis as any).scroll : window.scrollY);
+
+/** Boot the engine once. Returns the persistent Lenis (or null when reduced). */
+export function initScroll() {
+  if (started) return lenis;
+  started = true;
   if (!reduced) {
     lenis = new Lenis({ duration: 1.15, smoothWheel: true, lerp: 0.1 });
-    lenis.on("scroll", ScrollTrigger.update);
+    lenis.on("scroll", (e: any) => {
+      ScrollTrigger.update();
+      const y = e.scroll;
+      for (const cb of pageScrollCbs) cb(y);
+    });
     gsap.ticker.add((t) => lenis!.raf(t * 1000));
     gsap.ticker.lagSmoothing(0);
     document.documentElement.classList.add("lenis");
+  } else {
+    window.addEventListener("scroll", () => {
+      const y = window.scrollY;
+      for (const cb of pageScrollCbs) cb(y);
+    }, { passive: true });
   }
+  return lenis;
+}
 
-  initNav(lenis);
+/** Wire everything bound to the CURRENT page's DOM. Re-run after a soft swap. */
+export function initPageScroll() {
+  initNav();
   initLineReveals();
   initHeroIntro();
   initReveals();
   initMarquee();
   initMediaReveal();
-  initScrubVideo(lenis);
-  initParallax(lenis);
+  initScrubVideo();
+  initParallax();
   initRounds();
-  initReel(lenis);
+  initReel();
+  initBgVideos();
+  initColorJourney();
   ScrollTrigger.refresh();
-  // Web fonts (Anton) shift layout after load — recompute trigger positions.
-  if ((document as any).fonts?.ready) {
-    (document as any).fonts.ready.then(() => ScrollTrigger.refresh());
-  }
-  window.addEventListener("load", () => ScrollTrigger.refresh());
-  return lenis;
+  if ((document as any).fonts?.ready) (document as any).fonts.ready.then(() => ScrollTrigger.refresh());
+}
+
+/** Tear down everything bound to the outgoing page before a soft swap. */
+export function teardownPageScroll() {
+  ScrollTrigger.getAll().forEach((t) => t.kill());
+  pageScrollCbs.length = 0;
+  pageObservers.forEach((io) => io.disconnect());
+  pageObservers.length = 0;
+  pageTweens.forEach((t) => t.kill());
+  pageTweens.length = 0;
 }
 
 /** All line-by-line headline reveals via a CSS class (no animation-lib
@@ -42,7 +74,7 @@ export function initScroll() {
 function initLineReveals() {
   const lines = document.querySelectorAll<HTMLElement>(".reveal-line");
   if (!lines.length) return;
-  const io = new IntersectionObserver(
+  const io = track(new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -52,7 +84,7 @@ function initLineReveals() {
       });
     },
     { threshold: 0.05, rootMargin: "0px 0px -4% 0px" }
-  );
+  ));
   lines.forEach((l) => io.observe(l));
 }
 
@@ -66,17 +98,15 @@ function initHeroIntro() {
   );
 }
 
-function initNav(lenis: Lenis | null) {
+function initNav() {
   const nav = document.getElementById("nav");
   if (!nav) return;
   let last = 0;
-  const onScroll = (y: number) => {
+  onScroll((y) => {
     nav.classList.toggle("scrolled", y > 40);
     nav.classList.toggle("hidden", y > last && y > 400);
     last = y;
-  };
-  if (lenis) lenis.on("scroll", (e: any) => onScroll(e.scroll));
-  else window.addEventListener("scroll", () => onScroll(window.scrollY), { passive: true });
+  });
 }
 
 function initReveals() {
@@ -124,7 +154,7 @@ function initReveals() {
  *  tracks which round you're in as you descend. */
 function initRounds() {
   const cards = document.querySelectorAll<HTMLElement>(".round-card");
-  const io = new IntersectionObserver(
+  const io = track(new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -135,7 +165,7 @@ function initRounds() {
       });
     },
     { threshold: 0.45 }
-  );
+  ));
   cards.forEach((c) => io.observe(c));
 
   const hud = document.getElementById("hud");
@@ -144,7 +174,7 @@ function initRounds() {
   const name = hud.querySelector<HTMLElement>(".hud__name");
   const ticks = hud.querySelectorAll<HTMLElement>(".hud__ticks i");
   const sections = document.querySelectorAll<HTMLElement>("[data-round]");
-  const io2 = new IntersectionObserver(
+  const io2 = track(new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         if (!e.isIntersecting) return;
@@ -157,20 +187,20 @@ function initRounds() {
       });
     },
     { threshold: 0.5 }
-  );
+  ));
   sections.forEach((s) => io2.observe(s));
 }
 
 /** Continuous scroll parallax — elements drift at different depths so the
  *  page reads like a moving camera, not a stack of static blocks. */
-function initParallax(lenis: Lenis | null) {
+function initParallax() {
   if (reduced) return;
   const items: { el: HTMLElement; amt: number }[] = [];
   const add = (sel: string, amt: number) =>
     document.querySelectorAll<HTMLElement>(sel).forEach((el) => items.push({ el, amt }));
-  add(".sec-head .display", 26);
-  add(".feature-card", 46);
-  add(".cta-block", 30);
+  // NOTE: never parallax elements that also carry [data-reveal] — the reveal
+  // tween and the parallax both write transform and fight (shaky entry).
+  add(".sec-head .display", 22);
   add(".showcase__frame", 70);
   if (!items.length) return;
 
@@ -185,15 +215,12 @@ function initParallax(lenis: Lenis | null) {
       el.style.transform = `translate3d(0, ${(-prog * amt).toFixed(1)}px, 0)`;
     }
   };
-  const onScroll = () => {
+  onScroll(() => {
     if (!ticking) {
       ticking = true;
       requestAnimationFrame(apply);
     }
-  };
-  if (lenis) lenis.on("scroll", onScroll);
-  else window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll);
+  });
   apply();
 }
 
@@ -201,7 +228,7 @@ function initParallax(lenis: Lenis | null) {
 function initMediaReveal() {
   const items = document.querySelectorAll<HTMLElement>(".shot, .feature-img");
   if (!items.length) return;
-  const io = new IntersectionObserver(
+  const io = track(new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -211,28 +238,84 @@ function initMediaReveal() {
       });
     },
     { threshold: 0.08, rootMargin: "0px 0px -4% 0px" }
-  );
+  ));
   items.forEach((el) => io.observe(el));
+}
+
+/** Progressive colour journey — the accent travels bronze → gold → red as you
+ *  descend (the three theme accents used sequentially). bg/typography stay; only
+ *  the accent shifts, so it's stylish, not jarring. WebGL picks it up via a
+ *  throttled themechange. Home only — subpages use a single waypoint. */
+function initColorJourney() {
+  const root = document.documentElement;
+  if (document.body.dataset.page !== "home") {
+    // subpages use the theme's own (red) accent — clear any home override
+    root.style.removeProperty("--accent");
+    root.style.removeProperty("--glow");
+    window.dispatchEvent(new Event("themechange"));
+    return;
+  }
+  const stops = [
+    [226, 35, 26], // red — start (le combat)
+    [176, 121, 63], // bronze — a brief warm dip
+    [226, 35, 26], // red — end + final CTA
+  ];
+  let last = 0;
+  const apply = (y: number) => {
+    const max = root.scrollHeight - window.innerHeight;
+    const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+    const seg = p * (stops.length - 1);
+    const i = Math.min(stops.length - 2, Math.floor(seg));
+    const t = seg - i;
+    const c = [0, 1, 2].map((k) => Math.round(stops[i][k] + (stops[i + 1][k] - stops[i][k]) * t));
+    root.style.setProperty("--accent", `rgb(${c[0]},${c[1]},${c[2]})`);
+    root.style.setProperty("--glow", `rgba(${c[0]},${c[1]},${c[2]},0.5)`);
+    const now = performance.now();
+    if (now - last > 140) {
+      last = now;
+      window.dispatchEvent(new Event("themechange"));
+    }
+  };
+  onScroll(apply);
+  apply(scrollY());
+}
+
+/** Ambient background videos: only play while on screen (perf + battery). */
+function initBgVideos() {
+  const vids = document.querySelectorAll<HTMLVideoElement>(".vid-bg video");
+  if (!vids.length) return;
+  const io = track(new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        const v = e.target as HTMLVideoElement;
+        if (e.isIntersecting) {
+          if (v.preload === "none") v.preload = "auto";
+          v.play().catch(() => {});
+        } else {
+          v.pause();
+        }
+      });
+    },
+    { threshold: 0.05 }
+  ));
+  vids.forEach((v) => io.observe(v));
 }
 
 /** Pinned horizontal disciplines reel — vertical scroll drives the track
  *  sideways (the award-site "horizontal section" inside a sticky pin). */
-function initReel(lenis: Lenis | null) {
+function initReel() {
   const reel = document.querySelector<HTMLElement>(".reel");
-  const track = document.getElementById("reel-track");
-  if (!reel || !track) return;
+  const trackEl = document.getElementById("reel-track");
+  if (!reel || !trackEl) return;
   const update = () => {
     const total = reel.offsetHeight - window.innerHeight;
     if (total <= 0) return;
     const p = Math.min(1, Math.max(0, -reel.getBoundingClientRect().top / total));
-    const max = track.scrollWidth - window.innerWidth + 2 * 24;
-    track.style.transform = `translate3d(${(-p * Math.max(0, max)).toFixed(1)}px, 0, 0)`;
+    const max = trackEl.scrollWidth - window.innerWidth + 2 * 24;
+    trackEl.style.transform = `translate3d(${(-p * Math.max(0, max)).toFixed(1)}px, 0, 0)`;
   };
-  if (lenis) lenis.on("scroll", update);
-  else window.addEventListener("scroll", update, { passive: true });
+  onScroll(update);
   window.addEventListener("resize", update);
-  // recompute once images affect scrollWidth
-  window.addEventListener("load", update);
   setTimeout(update, 600);
   update();
 }
@@ -240,7 +323,7 @@ function initReel(lenis: Lenis | null) {
 /** Scroll-scrubbed footage (Zentry's ScrollyVideo technique): the clip's
  *  playhead is driven by scroll progress through a sticky section — cinematic
  *  slow-motion. Touch/reduced-motion fall back to an autoplay loop. */
-function initScrubVideo(lenis: Lenis | null) {
+function initScrubVideo() {
   const sec = document.querySelector<HTMLElement>(".scrub");
   const v = sec?.querySelector<HTMLVideoElement>("video");
   if (!sec || !v) return;
@@ -260,7 +343,7 @@ function initScrubVideo(lenis: Lenis | null) {
   v.addEventListener("loadedmetadata", setDur);
   setDur();
 
-  const update = () => {
+  onScroll(() => {
     const total = sec.offsetHeight - window.innerHeight;
     const p = Math.min(1, Math.max(0, -sec.getBoundingClientRect().top / total));
     sec.style.setProperty("--p", p.toFixed(3));
@@ -269,15 +352,12 @@ function initScrubVideo(lenis: Lenis | null) {
         v.currentTime = p * (dur - 0.05);
       } catch {}
     }
-  };
-  if (lenis) lenis.on("scroll", update);
-  else window.addEventListener("scroll", update, { passive: true });
-  update();
+  });
 }
 
 function initMarquee() {
-  gsap.utils.toArray<HTMLElement>(".marquee__track").forEach((track) => {
-    const dir = track.dataset.dir === "rev" ? 1 : -1;
-    gsap.to(track, { xPercent: 50 * dir, duration: 24, ease: "none", repeat: -1, yoyo: false });
+  gsap.utils.toArray<HTMLElement>(".marquee__track").forEach((el) => {
+    const dir = el.dataset.dir === "rev" ? 1 : -1;
+    pageTweens.push(gsap.to(el, { xPercent: 50 * dir, duration: 24, ease: "none", repeat: -1 }));
   });
 }
