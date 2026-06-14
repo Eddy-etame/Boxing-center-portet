@@ -12,8 +12,24 @@ export function initFx() {
   if (fine && !reduced) {
     initCursor();
     initMagnetic();
+    initGalleryWarp();
   }
   initSound();
+}
+
+/** Photos drift toward the cursor (parallax distortion) like the award sites. */
+function initGalleryWarp() {
+  document.querySelectorAll<HTMLElement>(".shot").forEach((shot) => {
+    const img = shot.querySelector<HTMLElement>("img");
+    if (!img) return;
+    shot.addEventListener("pointermove", (e) => {
+      const r = shot.getBoundingClientRect();
+      const mx = (e.clientX - (r.left + r.width / 2)) / r.width;
+      const my = (e.clientY - (r.top + r.height / 2)) / r.height;
+      img.style.transform = `scale(1.08) translate(${mx * -16}px, ${my * -16}px)`;
+    });
+    shot.addEventListener("pointerleave", () => (img.style.transform = ""));
+  });
 }
 
 /* ---------- page-transition curtain ----------
@@ -101,23 +117,26 @@ function initMagnetic() {
 
 /* ---------- interaction sound ---------- */
 function initSound() {
-  const hoverTargets = document.querySelectorAll(".disc, .tarif, .shot, .coach");
-  hoverTargets.forEach((el) => el.addEventListener("pointerenter", () => tick()));
-  document.querySelectorAll(".btn--primary").forEach((el) =>
+  // tactile tick on every interactive card + the primary CTA
+  document.querySelectorAll(".disc, .tarif, .aud, .coach, .shot, .value, .btn--primary").forEach((el) =>
     el.addEventListener("pointerenter", () => tick())
   );
-  // soft bell as major sections arrive (only when sound is enabled)
-  const secs = document.querySelectorAll(".sec-head, .cta-block");
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          if (soundOn()) bell();
-          io.unobserve(e.target);
-        }
-      });
-    },
-    { threshold: 0.6 }
-  );
-  secs.forEach((s) => io.observe(s));
+  // the bell rings ONCE, as the closing call-to-action arrives — the round's end
+  const finalCta = document.querySelector(".cta-block, .page-head");
+  if (finalCta) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            if (soundOn()) bell();
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    // only the home closing CTA, not every page-head
+    const target = document.querySelector(".cta-block");
+    if (target) io.observe(target);
+  }
 }

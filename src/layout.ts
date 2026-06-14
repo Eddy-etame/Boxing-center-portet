@@ -1,5 +1,5 @@
 import { NAV, SITE, THEMES } from "./data";
-import { bell, tick, setSound, soundOn } from "./audio";
+import { bell, tick, whoosh, setSound, soundOn } from "./audio";
 
 const svgArrow = `<svg class="arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -84,6 +84,26 @@ export function mountLayout() {
     c.setAttribute("aria-hidden", "true");
     document.body.appendChild(c);
   }
+  if (!document.querySelector(".grain")) {
+    const g = document.createElement("div");
+    g.className = "grain";
+    g.setAttribute("aria-hidden", "true");
+    document.body.appendChild(g);
+  }
+  // fight scorecard HUD (home only — it tracks rounds)
+  if (document.body.dataset.page === "home" && !document.getElementById("hud")) {
+    const hud = document.createElement("aside");
+    hud.id = "hud";
+    hud.className = "hud hud--hidden";
+    hud.setAttribute("aria-hidden", "true");
+    hud.innerHTML =
+      '<span class="hud__round">00</span><span class="hud__slash">/06</span>' +
+      '<span class="hud__name"></span>' +
+      '<div class="hud__ticks">' +
+      Array.from({ length: 6 }, () => "<i></i>").join("") +
+      "</div>";
+    document.body.appendChild(hud);
+  }
 
   // mobile menu
   const burger = document.getElementById("burger");
@@ -91,21 +111,25 @@ export function mountLayout() {
   burger?.addEventListener("click", () => {
     const open = menu?.classList.toggle("open");
     burger.setAttribute("aria-expanded", String(!!open));
-    tick();
+    whoosh();
   });
   menu?.querySelectorAll("a").forEach((a) =>
     a.addEventListener("click", () => menu.classList.remove("open"))
   );
 
-  // sound toggle
+  // sound toggle (mute / unmute — sound is ON by default after the enter gate)
   const sound = document.getElementById("sound");
+  const syncSound = (on: boolean) => {
+    sound?.classList.toggle("on", on);
+    sound?.setAttribute("aria-label", on ? "Couper le son" : "Activer le son");
+  };
   sound?.addEventListener("click", () => {
     const on = !soundOn();
     setSound(on);
-    sound.classList.toggle("on", on);
-    sound.setAttribute("aria-label", on ? "Couper le son" : "Activer le son");
     if (on) bell();
   });
+  window.addEventListener("bcp-sound", (e) => syncSound(!!(e as CustomEvent).detail));
+  syncSound(soundOn());
 
   // UI sounds
   window.addEventListener("ui-tick", () => bell());

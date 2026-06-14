@@ -4,9 +4,26 @@ import { initThemeSwitch } from "./theme";
 import { initScroll } from "./scroll";
 import { initFx } from "./fx";
 import { renderPage } from "./pages";
-import { DISCIPLINES, TARIFS, GALLERY, CLIPS } from "./data";
+import { initEnterGate } from "./enter";
+import { DISCIPLINES, TARIFS, GALLERY, CLIPS, AUDIENCES, CHAMPIONS, VALUES } from "./data";
 
 function renderHomeGrids() {
+  const reel = document.getElementById("reel-track");
+  if (reel) {
+    reel.innerHTML = DISCIPLINES.map(
+      (d) => `
+      <article class="reel__frame">
+        <img src="${d.img}" alt="${d.name} — Boxing Center Portet" loading="lazy" />
+        <span class="reel__num">${d.key} / 08</span>
+        <span class="reel__tag">${d.tag}</span>
+        <div class="reel__body">
+          <h3 class="reel__name">${d.name}</h3>
+          <p class="reel__desc">${d.desc}</p>
+        </div>
+      </article>`
+    ).join("");
+  }
+
   const disc = document.getElementById("disc-grid");
   if (disc) {
     disc.innerHTML = DISCIPLINES.slice(0, 8)
@@ -36,6 +53,42 @@ function renderHomeGrids() {
     ).join("");
   }
 
+  const aud = document.getElementById("aud-grid");
+  if (aud) {
+    aud.innerHTML = AUDIENCES.map(
+      (a) => `
+      <article class="aud" data-reveal>
+        <span class="aud__tag">${a.tag}</span>
+        <h3 class="aud__title">${a.title}</h3>
+        <p class="aud__desc">${a.desc}</p>
+      </article>`
+    ).join("");
+  }
+
+  const champ = document.getElementById("champ-grid");
+  if (champ) {
+    champ.innerHTML = CHAMPIONS.map(
+      (c) => `
+      <article class="coach" data-reveal>
+        <div class="coach__photo"><span>${c.initials}</span></div>
+        <h3 class="coach__name">${c.name}</h3>
+        <p class="coach__role">${c.role}</p>
+      </article>`
+    ).join("");
+  }
+
+  const values = document.getElementById("values-grid");
+  if (values) {
+    values.innerHTML = VALUES.map(
+      (v) => `
+      <article class="value" data-reveal>
+        <span class="value__n">${v.n}</span>
+        <h3 class="value__title">${v.title}</h3>
+        <p class="value__desc">${v.desc}</p>
+      </article>`
+    ).join("");
+  }
+
   renderMedia();
 }
 
@@ -58,6 +111,7 @@ function renderMedia() {
 }
 
 function boot() {
+  initEnterGate();
   mountLayout();
   initThemeSwitch();
 
@@ -74,6 +128,10 @@ function boot() {
       import("./three/hero")
         .then((m) => m.initHero(host))
         .catch(() => host.classList.add("hero__canvas--fallback"));
+    }
+    const showcase = document.querySelector<HTMLElement>(".showcase__frame");
+    if (showcase && "WebGLRenderingContext" in window) {
+      import("./three/showcase").then((m) => m.initShowcaseGL(showcase)).catch(() => {});
     }
   }
 }
