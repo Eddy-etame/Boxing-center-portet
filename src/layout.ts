@@ -1,5 +1,5 @@
 import { NAV, SITE, THEMES } from "./data";
-import { bell, tick, whoosh, setSound, soundOn } from "./audio";
+import { punch, tick, whoosh, setSound, soundOn } from "./audio";
 
 const svgArrow = `<svg class="arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -121,13 +121,12 @@ export function mountLayout() {
   sound?.addEventListener("click", () => {
     const on = !soundOn();
     setSound(on);
-    if (on) bell();
+    if (on) punch(); // confident thud confirms sound is live (bell is reserved for the final gong)
   });
   window.addEventListener("bcp-sound", (e) => syncSound(!!(e as CustomEvent).detail));
   syncSound(soundOn());
 
-  // UI sounds
-  window.addEventListener("ui-tick", () => bell());
+  // UI hover ticks
   document.querySelectorAll(".btn--primary, .nav__links a").forEach((el) =>
     el.addEventListener("mouseenter", () => tick())
   );

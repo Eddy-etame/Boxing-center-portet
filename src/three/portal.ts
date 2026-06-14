@@ -1,26 +1,33 @@
 import * as THREE from "three";
 import { themeColors } from "../theme";
-import { bell, soundOn } from "../audio";
+import { boom, whoosh, soundOn } from "../audio";
+
+/** Curated real Portet imagery that lines the vortex (action + arena). */
+const POOL = [
+  "/img/gym-13.jpg", "/img/gym-12.jpg", "/img/gym-16.jpg", "/img/gym-20.jpg",
+  "/img/gym-15.jpg", "/img/gym-09.jpg", "/img/gym-24.jpg", "/img/gym-21.jpg",
+];
+
+type Handle = { dispose: () => void };
 
 /**
- * In portal — a slow, one-way dive INTO the next part of the club. The camera
- * flies forward down a corridor of ring-ropes + embers toward a real gym scene
- * (a graded Portet photo) that fills the frame as you arrive — it reads as
- * stepping deeper into the complex, never empty, and never reverses out.
- * Theme-reactive, paused offscreen, self-disposes on soft-nav.
+ * In-portal — a slow, ONE-WAY dive THROUGH a vortex lined with real boxing
+ * photographs (sparring, the cage, the ring, the champions). As you scroll the
+ * camera flies forward down a swirling tunnel of images that rush past and
+ * change — never an empty void, never a single hard zoom — then breaks through
+ * into the section's own scene. Theme-reactive (red), lazy per-portal, disposes
+ * when scrolled far away or on a soft-nav swap.
  */
-export function initPortal(section: HTMLElement) {
+function initPortal(section: HTMLElement): Handle | null {
   const host = section.querySelector<HTMLElement>(".portal__canvas");
   const lineEl = section.querySelector<HTMLElement>(".portal__line");
-  if (!host) return;
+  if (!host) return null;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
-  } catch {
-    return;
-  }
+  } catch { return null; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
   host.appendChild(renderer.domElement);
@@ -28,117 +35,187 @@ export function initPortal(section: HTMLElement) {
   let cols = themeColors();
   const C = (h: string) => new THREE.Color(h);
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(C("#08090c"), 0.04);
-  const camera = new THREE.PerspectiveCamera(64, 1, 0.1, 90);
+  scene.fog = new THREE.FogExp2(C("#0a0608"), 0.045);
+  const camera = new THREE.PerspectiveCamera(66, 1, 0.1, 120);
 
-  // destination: a real gym scene we fly into
-  const DEST_Z = -26;
+  const loader = new THREE.TextureLoader();
+  const textures: THREE.Texture[] = [];
+  const loadTex = (src: string) => {
+    const t = loader.load(src, (tx) => (tx.colorSpace = THREE.SRGBColorSpace));
+    t.colorSpace = THREE.SRGBColorSpace;
+    textures.push(t);
+    return t;
+  };
+
+  // ---- vortex of image planes (the boxing tunnel you fly through) ----
+  const group = new THREE.Group();
+  scene.add(group);
+  const planes: THREE.Mesh[] = [];
+  const RINGS = 7, K = 4, SPACING = 5, RADIUS = 4.6;
+  const planeGeo = new THREE.PlaneGeometry(3.8, 2.5);
+  let poolI = 0;
+  for (let r = 0; r < RINGS; r++) {
+    const z = 2 - r * SPACING;
+    const baseAng = r * 0.62; // twist each ring → vortex swirl
+    for (let k = 0; k < K; k++) {
+      const a = baseAng + (k / K) * Math.PI * 2;
+      const mat = new THREE.MeshBasicMaterial({
+        map: loadTex(POOL[poolI++ % POOL.length]),
+        color: C("#9c4f46"), side: THREE.DoubleSide, transparent: true, opacity: 0.9,
+      });
+      const m = new THREE.Mesh(planeGeo, mat);
+      m.position.set(Math.cos(a) * RADIUS, Math.sin(a) * RADIUS, z);
+      m.lookAt(0, 0, z + 9); // tilt the photo to face the approaching camera
+      m.rotation.z += (Math.random() - 0.5) * 0.3;
+      group.add(m);
+      planes.push(m);
+    }
+  }
+
+  // ---- destination "new world" the tunnel opens into (section's own scene) ----
+  const DEST_Z = -36;
+  const DEST_H = 21; // height in world units; width follows the photo's aspect (no stretch)
   const dest = new THREE.Mesh(
-    new THREE.PlaneGeometry(34, 21),
-    new THREE.MeshBasicMaterial({ color: C("#3a0c0c"), transparent: true, opacity: 0 })
+    new THREE.PlaneGeometry(1, 1),
+    new THREE.MeshBasicMaterial({ color: C("#2a0a0a"), transparent: true, opacity: 0 })
   );
   dest.position.z = DEST_Z;
+  dest.scale.set(DEST_H * 1.6, DEST_H, 1); // placeholder until the photo loads
   scene.add(dest);
-  const imgSrc = section.dataset.img;
-  if (imgSrc) {
-    new THREE.TextureLoader().load(imgSrc, (tex) => {
+  if (section.dataset.img) {
+    loader.load(section.dataset.img, (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
-      (dest.material as THREE.MeshBasicMaterial).map = tex;
-      (dest.material as THREE.MeshBasicMaterial).color = C("#9a5a52"); // warm/red grade multiply
-      (dest.material as THREE.MeshBasicMaterial).needsUpdate = true;
+      const im = tex.image as HTMLImageElement;
+      const aspect = im && im.width ? im.width / im.height : 1.6;
+      dest.scale.set(DEST_H * aspect, DEST_H, 1); // aspect-correct → never stretched
+      const mm = dest.material as THREE.MeshBasicMaterial;
+      mm.map = tex; mm.color = C("#bd6a5d"); mm.needsUpdate = true;
+      textures.push(tex);
     });
   }
 
-  // corridor of ring-ropes (the boxing tunnel)
-  const group = new THREE.Group();
-  scene.add(group);
+  // ---- glowing ring-rope hoops (the boxing context) ----
   const ropeMat = new THREE.MeshStandardMaterial({
-    color: C(cols.accent), emissive: C(cols.accent), emissiveIntensity: 0.75, metalness: 0.5, roughness: 0.35,
+    color: C(cols.accent), emissive: C(cols.accent), emissiveIntensity: 0.85, metalness: 0.5, roughness: 0.4,
   });
-  const SEGMENTS = 9;
-  for (let i = 0; i < SEGMENTS; i++) {
-    const z = 4 - i * 3; // 4 → -20, a corridor leading to the gym
-    // a square of 4 ropes per segment (the ring frame)
-    const frame = new THREE.Group();
-    const r = 3.4;
-    const bar = (w: number, h: number, x: number, y: number) => {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.06), ropeMat);
-      m.position.set(x, y, z);
-      frame.add(m);
-    };
-    bar(r * 2, 0.06, 0, r);
-    bar(r * 2, 0.06, 0, -r);
-    bar(0.06, r * 2, -r, 0);
-    bar(0.06, r * 2, r, 0);
-    group.add(frame);
+  const hoopGeo = new THREE.TorusGeometry(RADIUS + 0.4, 0.035, 8, 40);
+  for (let i = 0; i < 7; i++) {
+    const hoop = new THREE.Mesh(hoopGeo, ropeMat);
+    hoop.position.z = 0 - i * SPACING;
+    group.add(hoop);
   }
 
-  // embers / dust
-  const E = 420;
+  // ---- embers / dust ----
+  const E = 360;
   const ep = new Float32Array(E * 3);
   for (let i = 0; i < E; i++) {
-    ep[i * 3] = (Math.random() - 0.5) * 16;
-    ep[i * 3 + 1] = (Math.random() - 0.5) * 16;
-    ep[i * 3 + 2] = (Math.random() - 0.5) * 50 - 8;
+    ep[i * 3] = (Math.random() - 0.5) * 17;
+    ep[i * 3 + 1] = (Math.random() - 0.5) * 17;
+    ep[i * 3 + 2] = Math.random() * 46 - 42;
   }
   const eg = new THREE.BufferGeometry();
   eg.setAttribute("position", new THREE.BufferAttribute(ep, 3));
-  const embers = new THREE.Points(eg, new THREE.PointsMaterial({ color: C(cols.energy), size: 0.05, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const emat = new THREE.PointsMaterial({
+    color: C(cols.energy), size: 0.06, transparent: true, opacity: 0.7,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const embers = new THREE.Points(eg, emat);
   scene.add(embers);
 
-  const key = new THREE.PointLight(C(cols.energy), 26, 60);
+  const key = new THREE.PointLight(C(cols.energy), 30, 70);
   key.position.set(0, 0, 4);
-  scene.add(key, new THREE.AmbientLight(0xffffff, 0.22));
+  const amb = new THREE.AmbientLight(0xffffff, 0.55);
+  scene.add(key, amb);
 
-  window.addEventListener("themechange", () => {
+  // ---- listeners (tracked so dispose can detach them) ----
+  const onTheme = () => {
     cols = themeColors();
-    ropeMat.color.set(cols.accent);
-    ropeMat.emissive.set(cols.accent);
-    (embers.material as THREE.PointsMaterial).color.set(cols.energy);
-    key.color.set(cols.energy);
-  });
-
+    ropeMat.color.set(cols.accent); ropeMat.emissive.set(cols.accent);
+    emat.color.set(cols.energy); key.color.set(cols.energy);
+  };
+  window.addEventListener("themechange", onTheme);
   const resize = () => {
     const w = host.clientWidth || window.innerWidth;
     const h = host.clientHeight || window.innerHeight;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
+    camera.aspect = w / h; camera.updateProjectionMatrix();
   };
   resize();
   window.addEventListener("resize", resize);
 
   let visible = true;
-  new IntersectionObserver((es) => (visible = es[0].isIntersecting), { threshold: 0 }).observe(section);
+  const io = new IntersectionObserver((es) => (visible = es[0].isIntersecting), { threshold: 0 });
+  io.observe(section);
+
   const fade = (x: number, a: number, b: number) => Math.min(1, Math.max(0, (x - a) / (b - a)));
-  let belled = false;
+  let whooshed = false, boomed = false, alive = true, raf = 0;
 
   function frame() {
-    if (!section.isConnected) { renderer.dispose(); return; }
-    requestAnimationFrame(frame);
+    if (!alive) return;
+    if (!section.isConnected) { dispose(); return; } // soft-nav swap
+    raf = requestAnimationFrame(frame);
     if (!visible || document.hidden) return;
     const total = section.offsetHeight - window.innerHeight;
     let p = total > 0 ? -section.getBoundingClientRect().top / total : 0;
     p = Math.min(1, Math.max(0, p));
     if (reduced) p = 0.5;
 
-    // ONE-WAY dive: camera travels forward the whole time, arriving at the gym
-    camera.position.z = 8 - p * 30; // 8 → -22, ends just in front of the gym scene
-    camera.lookAt(0, 0, DEST_Z);
-    group.rotation.z = p * 0.5;
-    (dest.material as THREE.MeshBasicMaterial).opacity = fade(p, 0.2, 0.85); // the gym resolves as you arrive
+    // one-way dive forward through the vortex
+    camera.position.z = 6 - p * 38; // 6 → -32
+    camera.lookAt(0, 0, -100);
+    group.rotation.z = p * 0.9 + performance.now() * 0.00004; // swirl
+    (dest.material as THREE.MeshBasicMaterial).opacity = fade(p, 0.5, 0.92);
 
-    if (lineEl) lineEl.style.opacity = (fade(p, 0.28, 0.42) * (1 - fade(p, 0.82, 0.96))).toFixed(2);
-    if (!belled && p > 0.34 && p < 0.42) {
-      belled = true;
-      if (soundOn()) bell();
+    // each photo brightens as you approach it, dims once you've flown past
+    for (const m of planes) {
+      const ahead = camera.position.z - m.position.z; // >0 = still ahead
+      (m.material as THREE.MeshBasicMaterial).opacity =
+        0.14 + 0.86 * fade(ahead, -2, 6) * (1 - fade(ahead, 26, 40));
     }
+
+    if (lineEl) lineEl.style.opacity = (fade(p, 0.26, 0.4) * (1 - fade(p, 0.66, 0.82))).toFixed(2);
+    if (!whooshed && p > 0.12) { whooshed = true; if (soundOn()) whoosh(); }
+    if (!boomed && p > 0.58) { boomed = true; if (soundOn()) boom(); }
 
     renderer.render(scene, camera);
   }
+
+  function dispose() {
+    if (!alive) return;
+    alive = false;
+    cancelAnimationFrame(raf);
+    window.removeEventListener("themechange", onTheme);
+    window.removeEventListener("resize", resize);
+    io.disconnect();
+    planeGeo.dispose();
+    hoopGeo.dispose();
+    (dest.geometry as THREE.BufferGeometry).dispose();
+    (dest.material as THREE.Material).dispose();
+    planes.forEach((m) => (m.material as THREE.Material).dispose());
+    ropeMat.dispose();
+    eg.dispose(); emat.dispose();
+    textures.forEach((t) => t.dispose());
+    renderer.dispose();
+    renderer.domElement.remove();
+  }
+
   frame();
+  return { dispose };
 }
 
+/** Lazily build each portal only while it's near the viewport (≈1 active WebGL
+ *  context at a time), and tear it down once it's far away. */
 export function initPortals() {
-  document.querySelectorAll<HTMLElement>(".portal").forEach((s) => initPortal(s));
+  document.querySelectorAll<HTMLElement>(".portal").forEach((s) => {
+    let active: Handle | null = null;
+    const io = new IntersectionObserver(
+      (es) => {
+        const near = es[0].isIntersecting;
+        if (near && !active) active = initPortal(s);
+        else if (!near && active) { active.dispose(); active = null; }
+      },
+      { rootMargin: "150% 0px 150% 0px" }
+    );
+    io.observe(s);
+  });
 }

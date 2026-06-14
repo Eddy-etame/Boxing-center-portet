@@ -6,7 +6,8 @@ import { initFxOnce, initFxPage } from "./fx";
 import { renderPage } from "./pages";
 import { initEnterGate } from "./enter";
 import { initRouter } from "./router";
-import { DISCIPLINES, TARIFS, GALLERY, CLIPS, AUDIENCES, CHAMPIONS, VALUES } from "./data";
+import { initCommunity } from "./community";
+import { DISCIPLINES, TARIFS, GALLERY, CLIPS, AUDIENCES, CHAMPIONS, COACHS, VALUES } from "./data";
 
 function renderHomeGrids() {
   const reel = document.getElementById("reel-track");
@@ -66,18 +67,6 @@ function renderHomeGrids() {
     ).join("");
   }
 
-  const champ = document.getElementById("champ-grid");
-  if (champ) {
-    champ.innerHTML = CHAMPIONS.map(
-      (c) => `
-      <article class="coach" data-reveal>
-        <div class="coach__photo"><span>${c.initials}</span></div>
-        <h3 class="coach__name">${c.name}</h3>
-        <p class="coach__role">${c.role}</p>
-      </article>`
-    ).join("");
-  }
-
   const values = document.getElementById("values-grid");
   if (values) {
     values.innerHTML = VALUES.map(
@@ -133,7 +122,13 @@ function bootPage() {
     if (document.querySelector(".portal")) {
       import("./three/portal").then((m) => m.initPortals()).catch(() => {});
     }
+    const champ = document.getElementById("team-champions");
+    if (champ) import("./three/team").then((m) => m.mountTeam(champ, CHAMPIONS, 1)).catch(() => {});
+    const coachs = document.getElementById("team-coachs");
+    if (coachs) import("./three/team").then((m) => m.mountTeam(coachs, COACHS, 0)).catch(() => {});
   }
+
+  initCommunity();
 }
 
 /** Persistent shell — created once; survives soft navigation. */

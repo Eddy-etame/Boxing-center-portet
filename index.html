@@ -68,11 +68,7 @@
   <!-- ===================== WALK-OUT (hero) ===================== -->
   <header class="hero" data-round="0" data-round-name="Le walk-out">
     <div class="hero__canvas" id="hero-canvas" aria-hidden="true"></div>
-    <h1 class="sr-only">Boxing Center Portet — salle de boxe & combat à Portet-sur-Garonne</h1>
-    <div class="hero__kicker wrap">
-      <span class="eyebrow">Portet-sur-Garonne · 31120</span>
-      <span class="eyebrow" style="--accent: var(--energy)">Nouvelle salle phare</span>
-    </div>
+    <h1 class="sr-only">Boxing Center Portet</h1>
     <div class="hero__inner wrap">
       <p class="hero__hook" data-reveal>Ici, on ne fait pas du sport.<br>On forge des <span class="tint">combattants.</span></p>
       <div class="hero__cta" data-reveal>
@@ -85,7 +81,7 @@
 
   <!-- ===================== LA TOISE (stats) ===================== -->
   <section class="stats-band">
-    <div class="vid-bg"><video src="/media/clip-4.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
+    <div class="vid-bg"><video src="/media/clip-floor.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
     <div class="wrap">
       <span class="eyebrow" style="display:block;padding-block:1.4rem 0">La toise</span>
       <div class="stats" data-reveal-group>
@@ -132,7 +128,7 @@
   </section>
 
   <!-- ===================== ROUND 2 — TON COMBAT (portal) ===================== -->
-  <section class="portal" data-round="2" data-round-name="Ton combat" data-img="/img/gym-22.jpg" aria-hidden="true">
+  <section class="portal" data-round="2" data-round-name="Ton combat" data-img="/img/gym-12.jpg" aria-hidden="true">
     <div class="portal__sticky">
       <div class="portal__canvas"></div>
       <div class="portal__line wrap"><span class="portal__n">Round 02</span><span class="display">Ton combat</span></div>
@@ -187,7 +183,7 @@
     </div>
   </section>
   <section class="section band has-bg">
-    <div class="vid-bg"><video src="/media/clip-1.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
+    <div class="vid-bg"><video src="/media/clip-bags.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
     <div class="wrap split">
       <div data-reveal>
         <span class="eyebrow">L'équipement</span>
@@ -211,27 +207,73 @@
       <div class="portal__line wrap"><span class="portal__n">Round 04</span><span class="display">Les champions</span></div>
     </div>
   </section>
+  <section class="team" id="team-champions" aria-label="Les champions du club">
+    <div class="team__spot" aria-hidden="true"></div>
+    <div class="team__canvas" aria-hidden="true"></div>
+    <span class="team__word" aria-hidden="true">Champions</span>
+    <div class="team__overlay wrap">
+      <div class="team__head">
+        <span class="eyebrow">Nos pros</span>
+        <h2 class="display">Forgés <span class="tint">au feu</span></h2>
+        <p class="team__lead">Des boxeurs professionnels nés dans la salle — la preuve vivante de ce que le ring fabrique.</p>
+      </div>
+      <div class="team__card">
+        <span class="team__idx">01 / 03</span>
+        <span class="team__kind"></span>
+        <h3 class="team__name"></h3>
+        <p class="team__role"></p>
+        <p class="team__desc"></p>
+        <div class="team__nav">
+          <button class="team__prev" type="button" aria-label="Combattant précédent">&larr;</button>
+          <button class="team__next" type="button" aria-label="Combattant suivant">&rarr;</button>
+        </div>
+        <ul class="team__dots"></ul>
+      </div>
+    </div>
+    <ul class="sr-only">
+      <li>Salomon Kitoko — boxeur professionnel, super-plume</li>
+      <li>Elyasse Azap — boxeur professionnel, welters</li>
+      <li>Johnson Suffo — boxeur professionnel, poids moyens</li>
+    </ul>
+  </section>
   <section class="showcase">
     <div class="showcase__frame">
-      <img class="showcase__img" src="/img/gym-14.jpg" alt="Soirée de gala Boxing Center — un combattant ceint du titre sur le ring" loading="lazy" />
+      <img class="showcase__img" src="/img/disc/showcase-ring.webp" alt="Compétition de boxe anglaise Boxing Center — deux combattants s'affrontent sur le ring" loading="lazy" />
     </div>
     <div class="showcase__cap wrap">
       <span class="eyebrow">La récompense</span>
       <h2 class="display">Le ring rend<br>ce que tu lui <span class="tint">donnes.</span></h2>
     </div>
   </section>
-  <section class="section has-bg">
-    <div class="vid-bg"><video src="/media/clip-3.mp4" muted loop playsinline preload="none" aria-hidden="true"></video></div>
-    <div class="wrap">
-      <div class="sec-head">
-        <div>
-          <span class="eyebrow">L'équipe</span>
-          <h2 class="display" style="margin-top:1rem">Formé par des <span class="tint">pros.</span></h2>
-        </div>
-        <p class="lead" style="max-width:34ch">Des boxeurs professionnels et des coachs diplômés FFBoxe, FFKMDA et FMMAF. Tu n'apprends pas avec n'importe qui.</p>
+  <section class="team team--cool" id="team-coachs" aria-label="Les coachs du club">
+    <div class="team__spot" aria-hidden="true"></div>
+    <div class="team__canvas" aria-hidden="true"></div>
+    <span class="team__word" aria-hidden="true">Coachs</span>
+    <div class="team__overlay wrap">
+      <div class="team__head">
+        <span class="eyebrow">L'encadrement</span>
+        <h2 class="display">Ton <span class="tint">corner</span></h2>
+        <p class="team__lead">Des coachs diplômés FFBoxe, FFKMDA, FMMAF. Ils te lisent, te corrigent, te poussent — à chaque round.</p>
       </div>
-      <div class="coach-grid" id="champ-grid" data-reveal-group></div>
+      <div class="team__card">
+        <span class="team__idx">01 / 04</span>
+        <span class="team__kind"></span>
+        <h3 class="team__name"></h3>
+        <p class="team__role"></p>
+        <p class="team__desc"></p>
+        <div class="team__nav">
+          <button class="team__prev" type="button" aria-label="Coach précédent">&larr;</button>
+          <button class="team__next" type="button" aria-label="Coach suivant">&rarr;</button>
+        </div>
+        <ul class="team__dots"></ul>
+      </div>
     </div>
+    <ul class="sr-only">
+      <li>Coach Dadi — coach diplômé</li>
+      <li>Coach Mehdi — coach diplômé</li>
+      <li>Coach Valentin — coach diplômé</li>
+      <li>Coach Brice — coach diplômé</li>
+    </ul>
   </section>
 
   <!-- ===================== ROUND 5 — TA PLACE ===================== -->
@@ -242,7 +284,7 @@
     </div>
   </div>
   <section class="section has-bg">
-    <div class="sec-bg" style="--img:url(/img/gym-19.jpg)"></div>
+    <div class="sec-bg" style="--img:url(/img/gym-09.jpg)"></div>
     <div class="wrap">
       <div class="sec-head">
         <div>
@@ -264,6 +306,31 @@
       </div>
       <div class="gallery" id="gallery"></div>
       <div class="clips" id="clips" style="margin-top:1rem"></div>
+    </div>
+  </section>
+
+  <!-- ===================== LE MUR (communauté) ===================== -->
+  <section class="section community" id="community">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow">Le mur</span>
+          <h2 class="display" style="margin-top:1rem">La <span class="tint">communauté</span></h2>
+        </div>
+        <p class="lead" style="max-width:36ch">Tes meilleurs moments au club. Poste ta vidéo — elle rejoint le mur après validation.</p>
+      </div>
+      <form class="community__form" id="community-form">
+        <label class="community__drop">
+          <input type="file" name="video" accept="video/*" id="community-file" />
+          <span class="community__hint">Vidéo (mp4/mov) · validée avant publication</span>
+        </label>
+        <input class="community__text" type="text" name="caption" maxlength="120" placeholder="Légende (ex. Premier sparring)" />
+        <input class="community__text" type="text" name="author" maxlength="60" placeholder="Ton prénom (optionnel)" />
+        <button class="btn btn--primary" type="submit">Envoyer ma vidéo</button>
+        <div class="community__bar" aria-hidden="true"><i></i></div>
+        <p class="community__status" id="community-status" role="status" aria-live="polite"></p>
+      </form>
+      <div class="clips community__grid" id="community-grid" style="margin-top:1.4rem"></div>
     </div>
   </section>
 
@@ -291,7 +358,7 @@
   <section class="section" data-round="7" data-round-name="La cloche">
     <div class="wrap">
       <div class="cta-block has-cta-bg" data-reveal>
-        <div class="sec-bg" style="--img:url(/img/gym-14.jpg)"></div>
+        <div class="sec-bg" style="--img:url(/img/portet-exterior.jpg)"></div>
         <span class="eyebrow" style="justify-content:center;position:relative;z-index:1">Le gong final</span>
         <h2 class="display" style="margin:.8rem 0">Ça commence<br><span class="tint">maintenant.</span></h2>
         <p class="lead" style="margin-inline:auto">10€, toutes disciplines, sans engagement. La seule chose que tu risques, c'est d'y prendre goût. 61 route d'Espagne, Portet-sur-Garonne.</p>

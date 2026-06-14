@@ -1,6 +1,23 @@
-import { DISCIPLINES, TARIFS, PLANNING, COACHS, SITE } from "./data";
+import { DISCIPLINES, TARIFS, PLANNING, COACHS, SITE, type Member } from "./data";
 
 const el = (id: string) => document.getElementById(id);
+
+/** Treated "sci-fi" portrait card (duotone + scanlines via CSS; reveals to
+ *  colour on hover). Shared by the home team strip and the /coachs/ page. */
+export function coachCard(m: Member) {
+  return `
+    <article class="coach" data-reveal>
+      <div class="coach__media">
+        <img src="${m.img}" alt="${m.name} — ${m.kind}, Boxing Center Portet" loading="lazy" decoding="async" />
+        <span class="coach__fallback" aria-hidden="true">${m.initials}</span>
+        <span class="coach__kind">${m.kind}</span>
+      </div>
+      <div class="coach__meta">
+        <h3 class="coach__name">${m.name}</h3>
+        <p class="coach__role">${m.role}</p>
+      </div>
+    </article>`;
+}
 
 export function renderPage(page: string | undefined) {
   if (page === "activites") {
@@ -48,15 +65,7 @@ export function renderPage(page: string | undefined) {
 
   if (page === "coachs") {
     const g = el("coach-grid");
-    if (g)
-      g.innerHTML = COACHS.map(
-        (c) => `
-        <article class="coach" data-reveal>
-          <div class="coach__photo"><span>${c.initials}</span></div>
-          <h3 class="coach__name">${c.name}</h3>
-          <p class="coach__role">${c.role}</p>
-        </article>`
-      ).join("");
+    if (g) g.innerHTML = COACHS.map(coachCard).join("");
   }
 
   if (page === "salles") {

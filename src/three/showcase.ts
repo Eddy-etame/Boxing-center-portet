@@ -28,8 +28,8 @@ const frag = /* glsl */ `
   vec2 cover(vec2 uv){
     float ca = uRes.x / uRes.y, ia = uImg.x / uImg.y;
     vec2 st = uv;
-    // bias the vertical crop up (0.34) so faces at the top of the photo stay in frame
-    if (ca > ia) st.y = (uv.y - 0.5) * (ia / ca) + 0.34;
+    // keep the subjects centred on a wide crop (legible, not cropped to limbs)
+    if (ca > ia) st.y = (uv.y - 0.5) * (ia / ca) + 0.5;
     else         st.x = (uv.x - 0.5) * (ca / ia) + 0.5;
     return st;
   }
@@ -48,15 +48,15 @@ const frag = /* glsl */ `
     );
 
     float lum = dot(col, vec3(0.299, 0.587, 0.114));
-    vec3 shadow = vec3(0.055, 0.07, 0.13);   // near-black navy shadow
-    vec3 mid = vec3(0.78, 0.16, 0.12);       // combat red midtone
-    vec3 hi = vec3(0.97, 0.86, 0.78);        // warm highlight
+    vec3 shadow = vec3(0.08, 0.10, 0.16);    // lifted shadow (keeps detail readable)
+    vec3 mid = vec3(0.80, 0.18, 0.14);       // combat red midtone
+    vec3 hi = vec3(0.98, 0.88, 0.80);        // warm highlight
     vec3 duo = mix(shadow, mid, smoothstep(0.1, 0.55, lum));
     duo = mix(duo, hi, smoothstep(0.62, 0.97, lum));
-    col = mix(col, duo, 0.46);
+    col = mix(col, duo, 0.32);               // lighter grade so the photo stays legible
 
-    float vig = smoothstep(1.15, 0.35, distance(vUv, vec2(0.5)));
-    col *= 0.55 + 0.45 * vig;
+    float vig = smoothstep(1.2, 0.4, distance(vUv, vec2(0.5)));
+    col *= 0.7 + 0.3 * vig;
     gl_FragColor = vec4(col, 1.0);
   }
 `;
