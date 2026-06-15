@@ -684,6 +684,12 @@ html.gated, html.gated body { overflow: hidden; height: 100%; }
   [data-reveal], .reveal-line > span { opacity: 1 !important; transform: none !important; }
 }
 
+/* short desktops: shrink the hero copy a touch so it never meets the WebGL wordmark */
+@media (min-width: 761px) and (max-height: 820px) {
+  .hero__hook { font-size: clamp(1.5rem, 2.6vw, 2.3rem); }
+  .hero__inner { padding-bottom: clamp(1rem, 3vh, 2rem); }
+}
+
 /* ============================== MOBILE POLISH (≤760px only — desktop untouched) ============================== */
 @media (max-width: 760px) {
   /* hero: clean dark band under the wordmark so the copy reads */

@@ -85,7 +85,7 @@ export async function initHero(container: HTMLElement) {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     // softer bloom on phones so the wordmark stays crisp (not a glow blob)
-    const bloomStrength = window.innerWidth < 760 ? 0.8 : 1.25;
+    const bloomStrength = window.innerWidth < 760 ? 0.5 : 1.25;
     composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), bloomStrength, 0.75, 0.08));
   } catch { composer = null; }
 
@@ -100,12 +100,21 @@ export async function initHero(container: HTMLElement) {
     const visH = 2 * 9 * Math.tan((camera.fov * Math.PI) / 360);
     const visW = visH * camera.aspect;
     // full-bleed canvas: wordmark upper, slightly smaller + lower so the top clears the nav
-    const isMobile = (container.clientWidth || window.innerWidth) < 760;
-    const s = isMobile ? Math.min(0.7, (visW * 0.54) / 7.0) : Math.min(0.92, (visW * 0.48) / 7.0);
+    const aspect = w / h;
+    const isMobile = w < 760;
+    let s: number, py: number;
+    if (isMobile) {
+      s = Math.min(0.7, (visW * 0.54) / 7.0);
+      py = 0.24 * visH;
+    } else {
+      s = Math.min(0.82, (visW * 0.46) / 7.0);
+      if (aspect > 1.95) s *= 0.86;           // wide/short desktops: leave clear room for the hook
+      py = (aspect > 1.95 ? 0.31 : 0.26) * visH; // sit higher so PORTET never meets the copy
+    }
     crest.scale.setScalar(s);
-    crest.position.y = (isMobile ? 0.24 : 0.17) * visH;
-    // KEY: point sprite size must track the crest scale, else small (mobile) crest
-    // packs fixed-size points into a bloomed blob. 0.0575*s ≈ 0.05 at desktop scale.
+    crest.position.y = py;
+    // KEY: point sprite size must track the crest scale, else a small crest packs
+    // fixed-size points into a bloomed blob. 0.0575*s ≈ 0.05 at desktop scale.
     crestMat.size = 0.0575 * s;
   }
   resize();

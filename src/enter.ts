@@ -32,11 +32,15 @@ export function initEnterGate() {
 
   const gate = document.createElement("div");
   gate.className = "gate";
+  gate.setAttribute("aria-busy", "true");
   gate.innerHTML = `
+    <div class="gate__glow" aria-hidden="true"></div>
+    <div class="gate__embers" aria-hidden="true"></div>
     <div class="gate__inner">
-      <img class="gate__logo" src="/logo.png" alt="Boxing Center" width="150" height="71" />
+      <div class="gate__logo-wrap"><img class="gate__logo" src="/logo.png" alt="Boxing Center" width="150" height="71" /></div>
       <p class="gate__kicker">Portet-sur-Garonne</p>
       <div class="gate__loader" aria-hidden="true"><div class="gate__bar"><i></i></div><span class="gate__pct">0%</span></div>
+      <p class="gate__phase">Mise en place du ring…</p>
       <button class="gate__enter" type="button" disabled>
         <span class="gate__label">Chargement…</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -45,6 +49,13 @@ export function initEnterGate() {
     </div>`;
   document.body.appendChild(gate);
   document.documentElement.classList.add("gated");
+  // drifting ember dots (cheap, CSS-animated)
+  const emb = gate.querySelector<HTMLElement>(".gate__embers")!;
+  for (let i = 0; i < 18; i++) {
+    const d = document.createElement("i");
+    d.style.cssText = `left:${Math.random() * 100}%;animation-delay:${(-Math.random() * 6).toFixed(2)}s;animation-duration:${(4 + Math.random() * 5).toFixed(2)}s;transform:scale(${(0.5 + Math.random()).toFixed(2)})`;
+    emb.appendChild(d);
+  }
 
   const bar = gate.querySelector<HTMLElement>(".gate__bar i")!;
   const pctEl = gate.querySelector<HTMLElement>(".gate__pct")!;
