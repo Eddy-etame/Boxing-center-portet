@@ -101,14 +101,12 @@ export async function initHero(container: HTMLElement) {
     const visW = visH * camera.aspect;
     // full-bleed canvas: wordmark upper, slightly smaller + lower so the top clears the nav
     const isMobile = (container.clientWidth || window.innerWidth) < 760;
-    if (isMobile) {
-      // mobile: smaller, crisper wordmark seated in the upper band (copy sits below)
-      crest.scale.setScalar(Math.min(0.7, (visW * 0.52) / 7.0));
-      crest.position.y = 0.23 * visH;
-    } else {
-      crest.scale.setScalar(Math.min(0.92, (visW * 0.48) / 7.0));
-      crest.position.y = 0.17 * visH;
-    }
+    const s = isMobile ? Math.min(0.7, (visW * 0.54) / 7.0) : Math.min(0.92, (visW * 0.48) / 7.0);
+    crest.scale.setScalar(s);
+    crest.position.y = (isMobile ? 0.24 : 0.17) * visH;
+    // KEY: point sprite size must track the crest scale, else small (mobile) crest
+    // packs fixed-size points into a bloomed blob. 0.0575*s ≈ 0.05 at desktop scale.
+    crestMat.size = 0.0575 * s;
   }
   resize();
   window.addEventListener("resize", resize);
