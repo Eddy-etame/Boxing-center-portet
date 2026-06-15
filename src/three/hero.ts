@@ -84,7 +84,9 @@ export async function initHero(container: HTMLElement) {
     const { UnrealBloomPass } = await import("three/addons/postprocessing/UnrealBloomPass.js");
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 1.25, 0.75, 0.08));
+    // softer bloom on phones so the wordmark stays crisp (not a glow blob)
+    const bloomStrength = window.innerWidth < 760 ? 0.8 : 1.25;
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), bloomStrength, 0.75, 0.08));
   } catch { composer = null; }
 
   function resize() {
@@ -100,9 +102,9 @@ export async function initHero(container: HTMLElement) {
     // full-bleed canvas: wordmark upper, slightly smaller + lower so the top clears the nav
     const isMobile = (container.clientWidth || window.innerWidth) < 760;
     if (isMobile) {
-      // mobile: sit the wordmark higher + fill the narrow width, leaving a clean band for the copy
-      crest.scale.setScalar(Math.min(0.92, (visW * 0.66) / 7.0));
-      crest.position.y = 0.26 * visH;
+      // mobile: smaller, crisper wordmark seated in the upper band (copy sits below)
+      crest.scale.setScalar(Math.min(0.7, (visW * 0.52) / 7.0));
+      crest.position.y = 0.23 * visH;
     } else {
       crest.scale.setScalar(Math.min(0.92, (visW * 0.48) / 7.0));
       crest.position.y = 0.17 * visH;

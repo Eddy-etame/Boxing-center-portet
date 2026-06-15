@@ -684,11 +684,33 @@ html.gated, html.gated body { overflow: hidden; height: 100%; }
   [data-reveal], .reveal-line > span { opacity: 1 !important; transform: none !important; }
 }
 
+/* mobile hero brand — crisp real logo with a cinematic glow + ember backdrop
+   (the WebGL particle wordmark blooms into a blob on narrow screens) */
+.hero__brand { display: none; }
+@media (max-width: 760px) {
+  .hero__canvas { display: none; }
+  .hero__brand { display: flex; flex-direction: column; align-items: center; gap: 0.65rem;
+    position: absolute; top: 15%; left: 0; right: 0; z-index: 2; padding-inline: var(--gutter); }
+  .hero__brand::before { content: ""; position: absolute; z-index: -1; width: 118%; aspect-ratio: 1;
+    top: 46%; left: 50%; transform: translate(-50%, -50%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 44%, transparent) 0%, transparent 62%);
+    filter: blur(28px); animation: heroGlow 3.6s var(--ease-io) infinite; pointer-events: none; }
+  .hero__brand img { width: min(70vw, 300px); height: auto; filter: drop-shadow(0 6px 24px rgba(6, 8, 13, 0.6));
+    animation: heroBrandIn 1.1s var(--ease-out) both; }
+  .hero__portet { font-family: var(--font-display); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.42em; padding-left: 0.42em; font-size: clamp(1.35rem, 7vw, 2rem); color: var(--accent);
+    text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 60%, transparent);
+    animation: heroBrandIn 1.1s var(--ease-out) 0.12s both; }
+}
+@keyframes heroGlow { 0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.9); }
+  50% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.06); } }
+@keyframes heroBrandIn { from { opacity: 0; transform: translateY(16px) scale(0.95); } to { opacity: 1; transform: none; } }
+
 /* ============================== MOBILE POLISH (≤760px only — desktop untouched) ============================== */
 @media (max-width: 760px) {
   /* hero: clean dark band under the wordmark so the copy reads */
-  .hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 58%; z-index: 1; pointer-events: none;
-    background: linear-gradient(to top, var(--hero-bg) 22%, rgba(6, 8, 13, 0.55) 52%, transparent); }
+  .hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 50%; z-index: 1; pointer-events: none;
+    background: linear-gradient(to top, var(--hero-bg) 24%, rgba(6, 8, 13, 0.5) 55%, transparent); }
   .hero__inner { z-index: 2; padding-bottom: 2.2rem; gap: 1.1rem; }
   .hero__hook { font-size: clamp(1.3rem, 6vw, 1.85rem); max-width: 22ch; line-height: 1.08; }
   .hero__cta { width: 100%; }
