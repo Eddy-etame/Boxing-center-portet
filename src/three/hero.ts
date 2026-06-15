@@ -98,8 +98,15 @@ export async function initHero(container: HTMLElement) {
     const visH = 2 * 9 * Math.tan((camera.fov * Math.PI) / 360);
     const visW = visH * camera.aspect;
     // full-bleed canvas: wordmark upper, slightly smaller + lower so the top clears the nav
-    crest.scale.setScalar(Math.min(0.92, (visW * 0.48) / 7.0));
-    crest.position.y = 0.17 * visH;
+    const isMobile = (container.clientWidth || window.innerWidth) < 760;
+    if (isMobile) {
+      // mobile: sit the wordmark higher + fill the narrow width, leaving a clean band for the copy
+      crest.scale.setScalar(Math.min(0.92, (visW * 0.66) / 7.0));
+      crest.position.y = 0.26 * visH;
+    } else {
+      crest.scale.setScalar(Math.min(0.92, (visW * 0.48) / 7.0));
+      crest.position.y = 0.17 * visH;
+    }
   }
   resize();
   window.addEventListener("resize", resize);

@@ -72,10 +72,13 @@ function sync() {
 export function resumeSound() {
   enabled = true;
   ensure();
-  FILES.forEach(load);
   const a = ensureAmbient();
   a.play().then(() => fadeTo(AMB_GAIN)).catch(() => {});
   sync();
+  // warm the SFX buffers AFTER the interaction returns (avoids a long task → INP hit)
+  const warm = () => FILES.forEach(load);
+  if ("requestIdleCallback" in window) (window as any).requestIdleCallback(warm, { timeout: 1500 });
+  else setTimeout(warm, 200);
 }
 /** User explicitly enables sound (enter-with-sound / unmute). */
 export function enableSound() {

@@ -7,10 +7,12 @@
  */
 import { punch, tick, soundOn } from "./audio";
 
-// Only talk to a backend when one is explicitly configured (build-time env);
-// otherwise the wall shows a static invite and never hits the network → clean console.
-const API = (import.meta as any).env?.VITE_COMMUNITY_API ?? "";
-const ENABLED = !!API;
+// Same-domain by default: the API is served from the same origin as the site
+// (relative /api). Set VITE_COMMUNITY_API (even empty = same origin) to enable;
+// leave it unset to disable the wall gracefully (no network, clean console).
+const RAW = (import.meta as any).env?.VITE_COMMUNITY_API;
+const ENABLED = RAW !== undefined;
+const API = RAW || ""; // "" → relative same-origin requests (/api/..., /community/...)
 
 let limits = { maxUploadMb: 80, maxDurationSec: 30 };
 

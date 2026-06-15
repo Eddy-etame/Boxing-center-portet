@@ -35,10 +35,18 @@ function navMarkup(path: string) {
     </div>
   </nav>
   <div class="menu" id="menu" translate="no">
-    ${NAV.map((n) => `<a href="${n.href}">${n.label}</a>`).join("")}
-    <a class="menu__ext" href="${GROUP}" target="_blank" rel="noopener">Le groupe Boxing Center ${svgExt}</a>
-    <a class="menu__ext" href="${SHOP}" target="_blank" rel="noopener">Boutique ${svgExt}</a>
-    <a class="btn btn--primary" style="margin-top:1.6rem;align-self:flex-start" href="/contact/">Séance d'essai · 10€ ${svgArrow}</a>
+    <div class="menu__head">
+      <img class="menu__logo" src="/logo.png" alt="Boxing Center Portet" width="150" height="71" />
+      <button class="icon-btn menu__close" id="menu-close" aria-label="Fermer le menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <nav class="menu__nav">${NAV.map((n) => `<a href="${n.href}">${n.label}</a>`).join("")}</nav>
+    <div class="menu__foot">
+      <a class="menu__ext" href="${GROUP}" target="_blank" rel="noopener">Le groupe Boxing Center ${svgExt}</a>
+      <a class="menu__ext" href="${SHOP}" target="_blank" rel="noopener">Boutique ${svgExt}</a>
+      <a class="btn btn--primary" href="/contact/">Séance d'essai · 10€ ${svgArrow}</a>
+    </div>
   </div>`;
 }
 
@@ -118,6 +126,10 @@ export function mountLayout() {
   menu?.querySelectorAll("a").forEach((a) =>
     a.addEventListener("click", () => menu.classList.remove("open"))
   );
+  document.getElementById("menu-close")?.addEventListener("click", () => {
+    menu?.classList.remove("open");
+    burger?.setAttribute("aria-expanded", "false");
+  });
 
   // sound toggle (mute / unmute — sound is ON by default after the enter gate)
   const sound = document.getElementById("sound");

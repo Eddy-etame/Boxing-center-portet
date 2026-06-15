@@ -78,10 +78,10 @@ function initForge(section: HTMLElement, members: ForgeMember[], crop: "face" | 
   const group = new THREE.Group();
   scene.add(group);
   const mobile = window.matchMedia("(max-width: 760px)").matches;
-  group.position.set(mobile ? 0 : 1.3, -0.6, 0); // bias right of the text + drop for header clearance
+  group.position.set(mobile ? 0 : 1.3, mobile ? -0.9 : -0.6, 0); // desktop: bias right of text; mobile: centred + lower
 
-  // capped height so tall (narrow) boxer cut-outs don't reach the header
-  const targetH = crop === "face" ? 6.0 : 7.0;
+  // capped height so tall (narrow) cut-outs don't reach the header (smaller on mobile)
+  const targetH = crop === "face" ? (mobile ? 5.2 : 6.0) : (mobile ? 6.0 : 7.0);
   const planeGeo = new THREE.PlaneGeometry(1, 1);
   const planes: THREE.Mesh[] = [];
   const shadows: THREE.Mesh[] = [];
