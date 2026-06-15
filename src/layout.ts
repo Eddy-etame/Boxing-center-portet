@@ -2,6 +2,9 @@ import { NAV, SITE, THEMES } from "./data";
 import { punch, tick, whoosh, setSound, soundOn } from "./audio";
 
 const svgArrow = `<svg class="arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const svgExt = `<svg class="ext" width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M5 11L11 5M11 5H6M11 5V10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SHOP = "https://boutique.boxingcenter.fr/";
+const GROUP = "https://boxingcenter.fr/";
 
 function navMarkup(path: string) {
   const links = NAV.map((n) => {
@@ -19,6 +22,8 @@ function navMarkup(path: string) {
       </a>
       <div class="nav__links">${links}</div>
       <div class="nav__right">
+        <a class="nav__ext" href="${GROUP}" target="_blank" rel="noopener" title="Site du groupe Boxing Center">Le groupe ${svgExt}</a>
+        <a class="nav__ext" href="${SHOP}" target="_blank" rel="noopener" title="Boutique Boxing Center">Boutique ${svgExt}</a>
         <button class="icon-btn sound-toggle" id="sound" aria-label="Activer le son" title="Son">
           <span class="bars"><i></i><i></i><i></i></span>
         </button>
@@ -31,6 +36,8 @@ function navMarkup(path: string) {
   </nav>
   <div class="menu" id="menu" translate="no">
     ${NAV.map((n) => `<a href="${n.href}">${n.label}</a>`).join("")}
+    <a class="menu__ext" href="${GROUP}" target="_blank" rel="noopener">Le groupe Boxing Center ${svgExt}</a>
+    <a class="menu__ext" href="${SHOP}" target="_blank" rel="noopener">Boutique ${svgExt}</a>
     <a class="btn btn--primary" style="margin-top:1.6rem;align-self:flex-start" href="/contact/">Séance d'essai · 10€ ${svgArrow}</a>
   </div>`;
 }

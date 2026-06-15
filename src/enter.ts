@@ -1,12 +1,23 @@
 import { enableSound, resumeSound, prefMuted } from "./audio";
 
 /**
- * "ENTRER DANS L'ARÈNE" gate. On first visit it captures the gesture browsers
- * require for audio, so sound is ON by default once you step in. On later pages
- * (same session) the gate is skipped and sound resumes on the first interaction
- * unless the user has muted.
+ * « ENTRER DANS L'ARÈNE » gate — doubles as a preloader. On first visit it
+ * shows a loading bar while critical assets warm up; the enter button only
+ * becomes clickable once ready. The click also captures the gesture browsers
+ * require for audio (sound ON by default after entry). On later pages in the
+ * same session the gate is skipped and sound resumes on first interaction.
  */
 const KEY = "bcp-entered";
+
+// above-the-fold / first-interaction assets to warm before entry
+const PRELOAD = [
+  "/logo.png",
+  "/img/gym-01.jpg",
+  "/img/gym-12.jpg",
+  "/img/gym-21.jpg",
+  "/img/disc/boxe-anglaise.webp",
+  "/img/disc/muay-thai.webp",
+];
 
 export function initEnterGate() {
   let entered = false;
@@ -25,16 +36,53 @@ export function initEnterGate() {
     <div class="gate__inner">
       <img class="gate__logo" src="/logo.png" alt="Boxing Center" width="150" height="71" />
       <p class="gate__kicker">Portet-sur-Garonne</p>
-      <button class="gate__enter" type="button">
-        <span>Entrer dans l'arène</span>
+      <div class="gate__loader" aria-hidden="true"><div class="gate__bar"><i></i></div><span class="gate__pct">0%</span></div>
+      <button class="gate__enter" type="button" disabled>
+        <span class="gate__label">Chargement…</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <p class="gate__hint">Expérience sonore · <button class="gate__silent" type="button">entrer en silence</button></p>
+      <p class="gate__hint">Expérience sonore · <button class="gate__silent" type="button" disabled>entrer en silence</button></p>
     </div>`;
   document.body.appendChild(gate);
   document.documentElement.classList.add("gated");
 
+  const bar = gate.querySelector<HTMLElement>(".gate__bar i")!;
+  const pctEl = gate.querySelector<HTMLElement>(".gate__pct")!;
+  const enterBtn = gate.querySelector<HTMLButtonElement>(".gate__enter")!;
+  const silentBtn = gate.querySelector<HTMLButtonElement>(".gate__silent")!;
+  const label = gate.querySelector<HTMLElement>(".gate__label")!;
+
+  // ---- preload progress ----
+  const total = PRELOAD.length + 1; // +1 for web fonts
+  let done = 0, isReady = false;
+  const bump = () => {
+    done = Math.min(total, done + 1);
+    const pct = Math.round((done / total) * 100);
+    bar.style.width = pct + "%";
+    pctEl.textContent = pct + "%";
+    if (done >= total) ready();
+  };
+  const ready = () => {
+    if (isReady) return;
+    isReady = true;
+    bar.style.width = "100%";
+    pctEl.textContent = "100%";
+    gate.classList.add("gate--ready");
+    label.textContent = "Entrer dans l'arène";
+    enterBtn.disabled = false;
+    silentBtn.disabled = false;
+  };
+
+  PRELOAD.forEach((src) => {
+    const im = new Image();
+    im.onload = im.onerror = bump;
+    im.src = src;
+  });
+  (document.fonts?.ready || Promise.resolve()).then(bump).catch(bump);
+  window.setTimeout(ready, 7000); // never hang on a slow asset
+
   const enter = (withSound: boolean) => {
+    if (!isReady) return;
     try {
       sessionStorage.setItem(KEY, "1");
     } catch {}
@@ -44,8 +92,8 @@ export function initEnterGate() {
     window.setTimeout(() => gate.remove(), 1000);
   };
 
-  gate.querySelector<HTMLButtonElement>(".gate__enter")!.addEventListener("click", () => enter(true));
-  gate.querySelector<HTMLButtonElement>(".gate__silent")!.addEventListener("click", () => enter(false));
+  enterBtn.addEventListener("click", () => enter(true));
+  silentBtn.addEventListener("click", (e) => { e.stopPropagation(); enter(false); });
 }
 
 function armGestureResume() {

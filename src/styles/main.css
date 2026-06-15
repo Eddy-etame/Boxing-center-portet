@@ -546,7 +546,17 @@ html.gated, html.gated body { overflow: hidden; height: 100%; }
   transition: background 0.3s, color 0.3s, transform 0.3s var(--ease-out); }
 .gate__enter:hover { background: var(--accent); color: var(--accent-ink); transform: translateY(-2px); }
 .gate__hint { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
-.gate__silent { color: var(--fg-soft); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.gate__silent { color: var(--fg-soft); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; background: none; border: 0; font: inherit; }
+/* preloader */
+.gate__loader { display: flex; align-items: center; gap: 0.7rem; width: min(300px, 72vw); margin-top: 0.5rem; }
+.gate__bar { flex: 1; height: 2px; background: var(--line-strong); overflow: hidden; border-radius: 2px; }
+.gate__bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.35s var(--ease-out); }
+.gate__pct { font-family: var(--font-mono); font-size: 0.66rem; color: var(--muted); min-width: 3.4ch; text-align: right; }
+.gate__enter[disabled] { opacity: 0.45; cursor: progress; }
+.gate__enter[disabled]:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--fg); transform: none; }
+.gate--ready .gate__enter { animation: gatePulse 2.2s var(--ease-io) infinite; }
+@keyframes gatePulse { 0%, 100% { box-shadow: 0 0 0 0 var(--glow); } 50% { box-shadow: 0 0 0 9px transparent; } }
+.gate__silent[disabled] { opacity: 0.4; pointer-events: none; }
 
 /* ============================== PAGE CURTAIN ============================== */
 .curtain { position: fixed; inset: 0; z-index: 200; background: var(--hero-bg); pointer-events: none;
@@ -627,6 +637,16 @@ html.gated, html.gated body { overflow: hidden; height: 100%; }
 .community__empty { color: var(--muted); padding: 1.5rem 0; }
 .community__grid .community__item { cursor: pointer; }
 @media (max-width: 560px) { .community__form { grid-template-columns: 1fr; } }
+
+/* ============================== NAV EXTERNAL LINKS ============================== */
+.nav__ext { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); display: inline-flex; align-items: center; gap: 0.35em; padding: 0.3rem 0.25rem; transition: color 0.25s; }
+.nav__ext:hover { color: var(--accent); }
+.nav__ext .ext { opacity: 0.65; }
+.menu__ext { font-family: var(--font-mono); font-size: 0.92rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); display: inline-flex; align-items: center; gap: 0.4em; padding: 0.5rem 0; }
+.menu__ext:hover { color: var(--accent); }
+@media (max-width: 1120px) { .nav__ext { display: none; } } /* moves into the burger menu */
 
 /* ============================== RESPONSIVE ============================== */
 /* nav collapses to the menu before items can crowd the controls */
