@@ -62,10 +62,13 @@ export function initEnterGate() {
   const enterBtn = gate.querySelector<HTMLButtonElement>(".gate__enter")!;
   const silentBtn = gate.querySelector<HTMLButtonElement>(".gate__silent")!;
   const label = gate.querySelector<HTMLElement>(".gate__label")!;
+  const phaseEl = gate.querySelector<HTMLElement>(".gate__phase")!;
+  const PHASES = ["Mise en place du ring…", "On chauffe les gants…", "Tension des cordes…", "Les sacs sont prêts…"];
 
   // ---- preload progress ----
   const total = PRELOAD.length + 1; // +1 for web fonts
-  let done = 0, isReady = false;
+  let done = 0, isReady = false, pi = 0;
+  const phaseTimer = window.setInterval(() => { if (!isReady) phaseEl.textContent = PHASES[++pi % PHASES.length]; }, 1100);
   const bump = () => {
     done = Math.min(total, done + 1);
     const pct = Math.round((done / total) * 100);
@@ -76,12 +79,16 @@ export function initEnterGate() {
   const ready = () => {
     if (isReady) return;
     isReady = true;
+    clearInterval(phaseTimer);
     bar.style.width = "100%";
     pctEl.textContent = "100%";
     gate.classList.add("gate--ready");
+    gate.setAttribute("aria-busy", "false");
+    phaseEl.textContent = "Prêt. Monte sur le ring.";
     label.textContent = "Entrer dans l'arène";
     enterBtn.disabled = false;
     silentBtn.disabled = false;
+    try { enterBtn.focus(); } catch {}
   };
 
   PRELOAD.forEach((src) => {
