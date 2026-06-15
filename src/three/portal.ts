@@ -47,6 +47,10 @@ function initPortal(section: HTMLElement): Handle | null {
     return t;
   };
 
+  // per-section image pool (coaches vortex shows coaches, not boxers) + "stay-in" mode
+  const pool = section.dataset.pool ? section.dataset.pool.split(",").map((s) => s.trim()).filter(Boolean) : POOL;
+  const noExit = section.hasAttribute("data-noexit"); // no arrival picture — flow straight into the next section
+
   // ---- vortex of image planes (the boxing tunnel you fly through) ----
   const group = new THREE.Group();
   scene.add(group);
@@ -60,7 +64,7 @@ function initPortal(section: HTMLElement): Handle | null {
     for (let k = 0; k < K; k++) {
       const a = baseAng + (k / K) * Math.PI * 2;
       const mat = new THREE.MeshBasicMaterial({
-        map: loadTex(POOL[poolI++ % POOL.length]),
+        map: loadTex(pool[poolI++ % pool.length]),
         color: C("#9c4f46"), side: THREE.DoubleSide, transparent: true, opacity: 0.9,
       });
       const m = new THREE.Mesh(planeGeo, mat);
@@ -72,23 +76,24 @@ function initPortal(section: HTMLElement): Handle | null {
     }
   }
 
-  // ---- destination "new world" the tunnel opens into (section's own scene) ----
+  // ---- destination "new world" the tunnel opens into (skipped in no-exit mode) ----
   const DEST_Z = -36;
   const DEST_H = 21; // height in world units; width follows the photo's aspect (no stretch)
-  const dest = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 1),
-    new THREE.MeshBasicMaterial({ color: C("#2a0a0a"), transparent: true, opacity: 0 })
-  );
-  dest.position.z = DEST_Z;
-  dest.scale.set(DEST_H * 1.6, DEST_H, 1); // placeholder until the photo loads
-  scene.add(dest);
-  if (section.dataset.img) {
+  let dest: THREE.Mesh | null = null;
+  if (!noExit && section.dataset.img) {
+    dest = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshBasicMaterial({ color: C("#2a0a0a"), transparent: true, opacity: 0 })
+    );
+    dest.position.z = DEST_Z;
+    dest.scale.set(DEST_H * 1.6, DEST_H, 1); // placeholder until the photo loads
+    scene.add(dest);
     loader.load(section.dataset.img, (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
       const im = tex.image as HTMLImageElement;
       const aspect = im && im.width ? im.width / im.height : 1.6;
-      dest.scale.set(DEST_H * aspect, DEST_H, 1); // aspect-correct → never stretched
-      const mm = dest.material as THREE.MeshBasicMaterial;
+      dest!.scale.set(DEST_H * aspect, DEST_H, 1); // aspect-correct → never stretched
+      const mm = dest!.material as THREE.MeshBasicMaterial;
       mm.map = tex; mm.color = C("#bd6a5d"); mm.needsUpdate = true;
       textures.push(tex);
     });
@@ -164,7 +169,7 @@ function initPortal(section: HTMLElement): Handle | null {
     camera.position.z = 6 - p * 38; // 6 → -32
     camera.lookAt(0, 0, -100);
     group.rotation.z = p * 0.9 + performance.now() * 0.00004; // swirl
-    (dest.material as THREE.MeshBasicMaterial).opacity = fade(p, 0.5, 0.92);
+    if (dest) (dest.material as THREE.MeshBasicMaterial).opacity = fade(p, 0.5, 0.92);
 
     // each photo brightens as you approach it, dims once you've flown past
     for (const m of planes) {
@@ -189,8 +194,7 @@ function initPortal(section: HTMLElement): Handle | null {
     io.disconnect();
     planeGeo.dispose();
     hoopGeo.dispose();
-    (dest.geometry as THREE.BufferGeometry).dispose();
-    (dest.material as THREE.Material).dispose();
+    if (dest) { (dest.geometry as THREE.BufferGeometry).dispose(); (dest.material as THREE.Material).dispose(); }
     planes.forEach((m) => (m.material as THREE.Material).dispose());
     ropeMat.dispose();
     eg.dispose(); emat.dispose();

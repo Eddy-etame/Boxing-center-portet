@@ -7,11 +7,25 @@
  */
 import { punch, tick, soundOn } from "./audio";
 
-const API =
-  (import.meta as any).env?.VITE_COMMUNITY_API ??
-  (location.hostname === "localhost" || location.hostname === "127.0.0.1" ? "http://localhost:8787" : "");
+// Only talk to a backend when one is explicitly configured (build-time env);
+// otherwise the wall shows a static invite and never hits the network → clean console.
+const API = (import.meta as any).env?.VITE_COMMUNITY_API ?? "";
+const ENABLED = !!API;
 
 let limits = { maxUploadMb: 80, maxDurationSec: 30 };
+
+// First-line content guard for user-supplied names (server re-checks). FR + EN.
+const BADWORDS = [
+  "merde", "putain", "connard", "connasse", "salope", "encule", "enculé", "pute", "bite", "couille",
+  "nique", "niquer", "ntm", "pd", "pédé", "tapette", "bougnoule", "negro", "nègre", "youpin", "salaud",
+  "fuck", "shit", "bitch", "cunt", "nigger", "faggot", "whore", "rape", "nazi", "kys", "porn", "sex",
+];
+function isInappropriate(s: string) {
+  const norm = s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, " ");
+  if (/(.)\1{6,}/.test(norm)) return true;          // spam (aaaaaaa)
+  if (/https?:|www\.|\.[a-z]{2,}\/?/i.test(s)) return true; // links
+  return BADWORDS.some((w) => new RegExp(`\\b${w}`, "i").test(norm));
+}
 
 export function initCommunity() {
   const root = document.getElementById("community");
@@ -20,6 +34,13 @@ export function initCommunity() {
   const form = root.querySelector<HTMLFormElement>("#community-form");
   const status = root.querySelector<HTMLElement>("#community-status");
   if (!grid || !form || !status) return;
+
+  bindForm(form, status, grid);
+
+  if (!ENABLED) {
+    grid.innerHTML = `<p class="community__empty">Le mur de la communauté arrive très bientôt — reviens vite. 🥊</p>`;
+    return;
+  }
 
   fetch(`${API}/api/health`)
     .then((r) => r.json())
@@ -31,7 +52,6 @@ export function initCommunity() {
     .catch(() => {});
 
   loadItems(grid);
-  bindForm(form, status, grid);
 }
 
 async function loadItems(grid: HTMLElement) {
@@ -43,12 +63,13 @@ async function loadItems(grid: HTMLElement) {
       grid.innerHTML = `<p class="community__empty">Sois le premier à poster ta vidéo. Le mur t'attend. 🥊</p>`;
       return;
     }
+    const abs = (u: string) => (/^https?:/.test(u) ? u : `${API}${u}`); // Cloudinary URLs are absolute
     grid.innerHTML = items
       .map(
         (it: any) => `
         <figure class="clip community__item">
-          <video src="${API}${it.src}" poster="${API}${it.poster}" muted loop playsinline preload="none"></video>
-          <figcaption class="clip__label">${escapeHtml(it.caption || "Communauté")}${it.author ? ` · ${escapeHtml(it.author)}` : ""}</figcaption>
+          <video src="${abs(it.src)}" poster="${abs(it.poster || "")}" muted loop playsinline preload="none"></video>
+          <figcaption class="clip__label">${escapeHtml(it.title || it.caption || "Communauté")}${it.author ? ` · ${escapeHtml(it.author)}` : ""}</figcaption>
         </figure>`
       )
       .join("");
@@ -67,8 +88,16 @@ function bindForm(form: HTMLFormElement, status: HTMLElement, grid: HTMLElement)
   const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
   const bar = form.querySelector<HTMLElement>(".community__bar > i");
 
+  const titleInput = form.querySelector<HTMLInputElement>('input[name="title"]');
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!ENABLED) return setStatus(status, "La mise en ligne ouvre très bientôt — reviens vite.", "info");
+    const title = (titleInput?.value || "").trim();
+    if (title.length < 2) return setStatus(status, "Donne un nom à ta vidéo.", "err");
+    if (isInappropriate(title)) return setStatus(status, "Ce nom n'est pas autorisé. Choisis-en un autre.", "err");
+    const author = (form.querySelector<HTMLInputElement>('input[name="author"]')?.value || "").trim();
+    if (author && isInappropriate(author)) return setStatus(status, "Ce prénom n'est pas autorisé.", "err");
     const file = fileInput.files?.[0];
     if (!file) return setStatus(status, "Choisis une vidéo d'abord.", "err");
 

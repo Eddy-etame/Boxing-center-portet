@@ -15,6 +15,7 @@ export default defineConfig({
         activites: page("activites/index.html"),
         salles: page("salles/index.html"),
         coachs: page("coachs/index.html"),
+        galerie: page("galerie/index.html"),
         plannings: page("plannings/index.html"),
         tarifs: page("tarifs/index.html"),
         contact: page("contact/index.html"),

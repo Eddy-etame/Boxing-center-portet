@@ -1,23 +1,6 @@
-import { DISCIPLINES, TARIFS, PLANNING, COACHS, SITE, type Member } from "./data";
+import { DISCIPLINES, TARIFS, PLANNING, SITE } from "./data";
 
 const el = (id: string) => document.getElementById(id);
-
-/** Treated "sci-fi" portrait card (duotone + scanlines via CSS; reveals to
- *  colour on hover). Shared by the home team strip and the /coachs/ page. */
-export function coachCard(m: Member) {
-  return `
-    <article class="coach" data-reveal>
-      <div class="coach__media">
-        <img src="${m.img}" alt="${m.name} — ${m.kind}, Boxing Center Portet" loading="lazy" decoding="async" />
-        <span class="coach__fallback" aria-hidden="true">${m.initials}</span>
-        <span class="coach__kind">${m.kind}</span>
-      </div>
-      <div class="coach__meta">
-        <h3 class="coach__name">${m.name}</h3>
-        <p class="coach__role">${m.role}</p>
-      </div>
-    </article>`;
-}
 
 export function renderPage(page: string | undefined) {
   if (page === "activites") {
@@ -63,10 +46,7 @@ export function renderPage(page: string | undefined) {
       ).join("");
   }
 
-  if (page === "coachs") {
-    const g = el("coach-grid");
-    if (g) g.innerHTML = COACHS.map(coachCard).join("");
-  }
+  // /coachs/ is a WebGL "forge" sequence (see src/three/forge.ts) — no grid to render.
 
   if (page === "salles") {
     const g = el("specs");

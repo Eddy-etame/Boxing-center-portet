@@ -48,6 +48,7 @@ export const NAV = [
   { href: "/activites/", label: "Activités" },
   { href: "/salles/", label: "Le club" },
   { href: "/coachs/", label: "Coachs" },
+  { href: "/galerie/", label: "Galerie" },
   { href: "/plannings/", label: "Planning" },
   { href: "/tarifs/", label: "Tarifs" },
   { href: "/contact/", label: "Contact" },
@@ -61,7 +62,7 @@ export const DISCIPLINES: Discipline[] = [
   { key: "03", name: "Kick / K1", tag: "Pieds-poings", desc: "Le tempo le plus électrique du ring. La vitesse rencontre la puissance.", img: "/img/disc/kick.webp" },
   { key: "04", name: "MMA & Grappling", tag: "Cage", desc: "Debout, au sol, dans la cage. L'art complet du combat — encadré, progressif, sans ego.", img: "/img/disc/mma.webp" },
   { key: "05", name: "Cross Training", tag: "Force", desc: "Le moteur du combattant. Cages, barres, rameurs : la force qui tient trois rounds.", img: "/img/disc/cross.webp" },
-  { key: "06", name: "Boxing Training", tag: "Cardio", desc: "Toute l'intensité du ring, zéro coup encaissé. Tu brûles, tu te défoules, tu te transformes.", img: "/img/disc/boxing-training.webp" },
+  { key: "06", name: "Boxing Training", tag: "Cardio", desc: "Toute l'intensité du ring, zéro coup encaissé. Tu brûles, tu te défoules, tu te transformes.", img: "/img/gym-20.jpg" },
   { key: "07", name: "Lady Punch", tag: "100% femmes", desc: "Un créneau, une communauté, zéro complexe. La force et la confiance, à ton rythme.", img: "/img/disc/lady.webp" },
   { key: "08", name: "Boxe Éducative", tag: "Dès 7 ans", desc: "Respect, discipline, énergie canalisée. Le ring qui construit des enfants debout.", img: "/img/disc/educative.webp" },
 ];

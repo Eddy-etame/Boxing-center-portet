@@ -78,8 +78,6 @@ function renderHomeGrids() {
       </article>`
     ).join("");
   }
-
-  renderMedia();
 }
 
 function renderMedia() {
@@ -107,25 +105,28 @@ function bootPage() {
   const page = document.body.dataset.page;
   if (page === "home") renderHomeGrids();
   else renderPage(page);
+  if (page === "galerie") renderMedia();
 
   initPageScroll();
   initFxPage();
 
-  if (page === "home" && hasWebGL) {
-    const host = document.getElementById("hero-canvas");
-    if (host) import("./three/hero").then((m) => m.initHero(host)).catch(() => {});
-    const showcase = document.querySelector<HTMLElement>(".showcase__frame");
-    if (showcase) import("./three/showcase").then((m) => m.initShowcaseGL(showcase)).catch(() => {});
-    const ringSec = document.querySelector<HTMLElement>(".ring");
-    const ringHost = document.getElementById("ring-canvas");
-    if (ringSec && ringHost) import("./three/ring").then((m) => m.initRing(ringSec, ringHost)).catch(() => {});
-    if (document.querySelector(".portal")) {
-      import("./three/portal").then((m) => m.initPortals()).catch(() => {});
+  if (hasWebGL) {
+    if (page === "home") {
+      const host = document.getElementById("hero-canvas");
+      if (host) import("./three/hero").then((m) => m.initHero(host)).catch(() => {});
+      const showcase = document.querySelector<HTMLElement>(".showcase__frame");
+      if (showcase) import("./three/showcase").then((m) => m.initShowcaseGL(showcase)).catch(() => {});
+      const ringSec = document.querySelector<HTMLElement>(".ring");
+      const ringHost = document.getElementById("ring-canvas");
+      if (ringSec && ringHost) import("./three/ring").then((m) => m.initRing(ringSec, ringHost)).catch(() => {});
     }
-    const champ = document.getElementById("team-champions");
-    if (champ) import("./three/team").then((m) => m.mountTeam(champ, CHAMPIONS, 1)).catch(() => {});
-    const coachs = document.getElementById("team-coachs");
-    if (coachs) import("./three/team").then((m) => m.mountTeam(coachs, COACHS, 0)).catch(() => {});
+    // portals + forge sequences exist on home (champions) and the coachs page (coaches)
+    if (document.querySelector(".portal")) import("./three/portal").then((m) => m.initPortals()).catch(() => {});
+    document.querySelectorAll<HTMLElement>(".forge").forEach((el) => {
+      const crop = el.dataset.crop === "face" ? "face" : "body";
+      const members = el.id === "forge-coachs" ? COACHS : CHAMPIONS;
+      import("./three/forge").then((m) => m.mountForge(el, members, crop as "face" | "body")).catch(() => {});
+    });
   }
 
   initCommunity();

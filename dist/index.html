@@ -58,8 +58,8 @@
     (function () { try { var t = localStorage.getItem('bcp-theme'); var v = ['arena','heritage','raw'];
       document.documentElement.setAttribute('data-theme', v.indexOf(t) >= 0 ? t : 'raw'); } catch (e) {} })();
   </script>
-  <script type="module" crossorigin src="/assets/main-CJ1JgUoh.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/main-D-da-lFY.css">
+  <script type="module" crossorigin src="/assets/main-yidO2Vx7.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-C7KahL-7.css">
 </head>
 
 <body data-page="home">
@@ -203,33 +203,31 @@
   </section>
 
   <!-- ===================== ROUND 4 — LES CHAMPIONS ===================== -->
-  <section class="portal" data-round="4" data-round-name="Les champions" data-img="/img/gym-14.jpg" aria-hidden="true">
+  <section class="portal" data-round="4" data-round-name="Les champions" data-noexit aria-hidden="true">
     <div class="portal__sticky">
       <div class="portal__canvas"></div>
       <div class="portal__line wrap"><span class="portal__n">Round 04</span><span class="display">Les champions</span></div>
     </div>
   </section>
-  <section class="team" id="team-champions" aria-label="Les champions du club">
-    <div class="team__spot" aria-hidden="true"></div>
-    <div class="team__canvas" aria-hidden="true"></div>
-    <span class="team__word" aria-hidden="true">Champions</span>
-    <div class="team__overlay wrap">
-      <div class="team__head">
-        <span class="eyebrow">Nos pros</span>
-        <h2 class="display">Forgés <span class="tint">au feu</span></h2>
-        <p class="team__lead">Des boxeurs professionnels nés dans la salle — la preuve vivante de ce que le ring fabrique.</p>
-      </div>
-      <div class="team__card">
-        <span class="team__idx">01 / 03</span>
-        <span class="team__kind"></span>
-        <h3 class="team__name"></h3>
-        <p class="team__role"></p>
-        <p class="team__desc"></p>
-        <div class="team__nav">
-          <button class="team__prev" type="button" aria-label="Combattant précédent">&larr;</button>
-          <button class="team__next" type="button" aria-label="Combattant suivant">&rarr;</button>
+  <section class="forge" id="forge-champions" data-crop="body" aria-label="Les champions du club">
+    <div class="forge__sticky">
+      <div class="forge__canvas" aria-hidden="true"></div>
+      <span class="forge__word" aria-hidden="true">Champions</span>
+      <div class="forge__overlay wrap">
+        <div class="forge__head">
+          <span class="eyebrow">Nos pros</span>
+          <h2 class="display">Forgés <span class="tint">au feu</span></h2>
+          <p class="forge__lead">Des boxeurs professionnels nés dans la salle. Fais défiler — ils se révèlent un par un.</p>
         </div>
-        <ul class="team__dots"></ul>
+        <div class="forge__card">
+          <span class="forge__idx">01 / 03</span>
+          <span class="forge__kind"></span>
+          <h3 class="forge__name"></h3>
+          <p class="forge__role"></p>
+          <p class="forge__desc"></p>
+          <ul class="forge__dots" aria-hidden="true"></ul>
+        </div>
+        <button class="forge__toggle" type="button" aria-pressed="false">Couleur réelle</button>
       </div>
     </div>
     <ul class="sr-only">
@@ -247,37 +245,6 @@
       <h2 class="display">Le ring rend<br>ce que tu lui <span class="tint">donnes.</span></h2>
     </div>
   </section>
-  <section class="team team--cool" id="team-coachs" aria-label="Les coachs du club">
-    <div class="team__spot" aria-hidden="true"></div>
-    <div class="team__canvas" aria-hidden="true"></div>
-    <span class="team__word" aria-hidden="true">Coachs</span>
-    <div class="team__overlay wrap">
-      <div class="team__head">
-        <span class="eyebrow">L'encadrement</span>
-        <h2 class="display">Ton <span class="tint">corner</span></h2>
-        <p class="team__lead">Des coachs diplômés FFBoxe, FFKMDA, FMMAF. Ils te lisent, te corrigent, te poussent — à chaque round.</p>
-      </div>
-      <div class="team__card">
-        <span class="team__idx">01 / 04</span>
-        <span class="team__kind"></span>
-        <h3 class="team__name"></h3>
-        <p class="team__role"></p>
-        <p class="team__desc"></p>
-        <div class="team__nav">
-          <button class="team__prev" type="button" aria-label="Coach précédent">&larr;</button>
-          <button class="team__next" type="button" aria-label="Coach suivant">&rarr;</button>
-        </div>
-        <ul class="team__dots"></ul>
-      </div>
-    </div>
-    <ul class="sr-only">
-      <li>Coach Dadi — coach diplômé</li>
-      <li>Coach Mehdi — coach diplômé</li>
-      <li>Coach Valentin — coach diplômé</li>
-      <li>Coach Brice — coach diplômé</li>
-    </ul>
-  </section>
-
   <!-- ===================== ROUND 5 — TA PLACE ===================== -->
   <div class="round-card" data-round="5" data-round-name="Ta place">
     <div class="round-card__inner wrap">
@@ -297,42 +264,17 @@
       <div class="aud-grid" id="aud-grid" data-reveal-group></div>
     </div>
   </section>
-  <section class="section band" id="media">
+  <section class="section has-bg" id="galerie-teaser">
+    <div class="sec-bg" style="--img:url(/img/gym-21.jpg)"></div>
     <div class="wrap">
       <div class="sec-head">
         <div>
           <span class="eyebrow">La salle</span>
           <h2 class="display" style="margin-top:1rem">En images, <span class="tint">en mouvement</span></h2>
         </div>
-        <p class="lead" style="max-width:34ch">Pas de rendus. Des vraies images de Portet : le ring, les sacs, les fresques, le gala.</p>
+        <p class="lead" style="max-width:34ch">Le ring, les sacs, les galas — et les vidéos postées par la communauté. Tout est dans la galerie.</p>
       </div>
-      <div class="gallery" id="gallery"></div>
-      <div class="clips" id="clips" style="margin-top:1rem"></div>
-    </div>
-  </section>
-
-  <!-- ===================== LE MUR (communauté) ===================== -->
-  <section class="section community" id="community">
-    <div class="wrap">
-      <div class="sec-head">
-        <div>
-          <span class="eyebrow">Le mur</span>
-          <h2 class="display" style="margin-top:1rem">La <span class="tint">communauté</span></h2>
-        </div>
-        <p class="lead" style="max-width:36ch">Tes meilleurs moments au club. Poste ta vidéo — elle rejoint le mur après validation.</p>
-      </div>
-      <form class="community__form" id="community-form">
-        <label class="community__drop">
-          <input type="file" name="video" accept="video/*" id="community-file" />
-          <span class="community__hint">Vidéo (mp4/mov) · validée avant publication</span>
-        </label>
-        <input class="community__text" type="text" name="caption" maxlength="120" placeholder="Légende (ex. Premier sparring)" />
-        <input class="community__text" type="text" name="author" maxlength="60" placeholder="Ton prénom (optionnel)" />
-        <button class="btn btn--primary" type="submit">Envoyer ma vidéo</button>
-        <div class="community__bar" aria-hidden="true"><i></i></div>
-        <p class="community__status" id="community-status" role="status" aria-live="polite"></p>
-      </form>
-      <div class="clips community__grid" id="community-grid" style="margin-top:1.4rem"></div>
+      <a class="btn btn--primary" href="/galerie/" style="margin-top:1.5rem">Voir la galerie</a>
     </div>
   </section>
 
@@ -360,7 +302,7 @@
   <section class="section" data-round="7" data-round-name="La cloche">
     <div class="wrap">
       <div class="cta-block has-cta-bg" data-reveal>
-        <div class="sec-bg" style="--img:url(/img/portet-exterior.jpg)"></div>
+        <div class="sec-bg" style="--img:url(/img/gym-13.jpg)"></div>
         <span class="eyebrow" style="justify-content:center;position:relative;z-index:1">Le gong final</span>
         <h2 class="display" style="margin:.8rem 0">Ça commence<br><span class="tint">maintenant.</span></h2>
         <p class="lead" style="margin-inline:auto">10€, toutes disciplines, sans engagement. La seule chose que tu risques, c'est d'y prendre goût. 61 route d'Espagne, Portet-sur-Garonne.</p>
